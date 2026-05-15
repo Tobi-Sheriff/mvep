@@ -38,3 +38,4 @@ Thumbs.db
 
 # MSW (auto-generated, committed separately via msw init)
 # public/mockServiceWorker.js is intentionally committed
+tsconfig.*.tsbuildinfo

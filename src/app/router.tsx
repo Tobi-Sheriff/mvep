@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { PrivateRoute } from '@/features/auth/components/PrivateRoute';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
 import { VendorDashboardPage } from '@/pages/vendor/DashboardPage';
@@ -15,23 +16,38 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/store" replace /> },
 
-  // Auth
+  // Auth — public only
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
 
-  // Vendor portal — PrivateRoute + RoleGuard added in Phase 2
+  // Vendor portal — vendor + admin only
   { path: '/vendor', element: <Navigate to="/vendor/dashboard" replace /> },
-  { path: '/vendor/dashboard', element: <VendorDashboardPage /> },
-  { path: '/vendor/products', element: <VendorProductsPage /> },
-  { path: '/vendor/orders', element: <VendorOrdersPage /> },
-  { path: '/vendor/analytics', element: <VendorAnalyticsPage /> },
+  {
+    path: '/vendor/dashboard',
+    element: <PrivateRoute allowedRoles={['vendor', 'admin']}><VendorDashboardPage /></PrivateRoute>,
+  },
+  {
+    path: '/vendor/products',
+    element: <PrivateRoute allowedRoles={['vendor', 'admin']}><VendorProductsPage /></PrivateRoute>,
+  },
+  {
+    path: '/vendor/orders',
+    element: <PrivateRoute allowedRoles={['vendor', 'admin']}><VendorOrdersPage /></PrivateRoute>,
+  },
+  {
+    path: '/vendor/analytics',
+    element: <PrivateRoute allowedRoles={['vendor', 'admin']}><VendorAnalyticsPage /></PrivateRoute>,
+  },
 
-  // Customer storefront
+  // Customer storefront — storefront is public, order history requires auth
   { path: '/store', element: <StorefrontPage /> },
   { path: '/store/product/:id', element: <ProductDetailPage /> },
   { path: '/store/cart', element: <CartPage /> },
   { path: '/store/checkout', element: <CheckoutPage /> },
-  { path: '/store/orders', element: <OrderHistoryPage /> },
+  {
+    path: '/store/orders',
+    element: <PrivateRoute allowedRoles={['customer']}><OrderHistoryPage /></PrivateRoute>,
+  },
 
   { path: '*', element: <NotFoundPage /> },
 ]);
