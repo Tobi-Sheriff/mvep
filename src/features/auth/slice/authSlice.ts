@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { AuthState, User } from '../types';
+import type { AuthState, PendingVerification, User } from '../types';
 
 const TOKEN_KEY = 'mvep_token';
 const USER_KEY = 'mvep_user';
@@ -24,6 +24,7 @@ const initialState: AuthState = {
   isAuthenticated: Boolean(token && user),
   isLoading: false,
   error: null,
+  pendingVerification: null,
 };
 
 const authSlice = createSlice({
@@ -40,6 +41,7 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.isLoading = false;
       state.error = null;
+      state.pendingVerification = null;
       localStorage.setItem(TOKEN_KEY, action.payload.token);
       localStorage.setItem(USER_KEY, JSON.stringify(action.payload.user));
     },
@@ -47,11 +49,20 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
+    verificationPending(state, action: PayloadAction<PendingVerification>) {
+      state.pendingVerification = action.payload;
+      state.isLoading = false;
+      state.error = null;
+    },
+    clearVerification(state) {
+      state.pendingVerification = null;
+    },
     logout(state) {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
+      state.pendingVerification = null;
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
     },
@@ -61,5 +72,13 @@ const authSlice = createSlice({
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, clearError } = authSlice.actions;
+export const {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  verificationPending,
+  clearVerification,
+  logout,
+  clearError,
+} = authSlice.actions;
 export default authSlice.reducer;

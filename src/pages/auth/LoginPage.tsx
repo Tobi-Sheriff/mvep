@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '@/shared/components/layout/AuthLayout';
+import { PasswordInput } from '@/shared/components/ui/PasswordInput';
 import { useAuthActions } from '@/features/auth/hooks/useAuthActions';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { loginSchema, type LoginFormData } from '@/features/auth/types/schemas';
@@ -29,7 +30,7 @@ export function LoginPage() {
       const user = await login(data);
       navigate(user.role === 'customer' ? '/store' : '/vendor/dashboard', { replace: true });
     } catch {
-      // error is surfaced via Redux state
+      // error surfaced via Redux state
     }
   }
 
@@ -55,11 +56,9 @@ export function LoginPage() {
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">Password</label>
-            <input
+            <PasswordInput
               {...register('password')}
-              type="password"
               placeholder="••••••••"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
             {errors.password && (
               <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>

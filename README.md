@@ -15,7 +15,7 @@
 
 <br/>
 
-[**Live Demo →**](https://mvep.vercel.app) &nbsp;|&nbsp; [API Contract](./docs/MVEP_API_Contract.docx) &nbsp;|&nbsp; [Test Cases](./docs/MVEP_Test_Cases_and_Scenarios.docx) &nbsp;|&nbsp; [Project Spec](./docs/MVEP_Project_Documentation.docx)
+[**Live Demo →**](https://mvep.vercel.app) &nbsp;|&nbsp; [API Contract](./docs/api-contract.md) &nbsp;|&nbsp; [Test Cases](./docs/test-cases.md) &nbsp;|&nbsp; [Project Spec](./docs/project-spec.md)
 
 </div>
 
@@ -143,9 +143,9 @@ VITE_ENABLE_MSW=true
 
 | Role     | Email             | Password    |
 | -------- | ----------------- | ----------- |
-| Customer | customer@mvep.dev | password123 |
-| Vendor   | vendor@mvep.dev   | password123 |
-| Admin    | admin@mvep.dev    | password123 |
+| Customer | customer@mvep.dev | password |
+| Vendor   | vendor@mvep.dev   | password |
+| Admin    | admin@mvep.dev    | password |
 
 ---
 
@@ -183,7 +183,7 @@ All endpoints are mocked with MSW. Base URL: `/api/v1`
 
 | Module    | Endpoints                                                                                               |
 | --------- | ------------------------------------------------------------------------------------------------------- |
-| Auth      | `POST /auth/register` · `POST /auth/login` · `POST /auth/logout` · `GET /auth/me`                       |
+| Auth      | `POST /auth/register` · `POST /auth/verify-email` · `POST /auth/resend-verification` · `POST /auth/login` · `POST /auth/logout` · `GET /auth/me` |
 | Products  | `GET /products` · `GET /products/:id` · `POST /products` · `PUT /products/:id` · `DELETE /products/:id` |
 | Orders    | `GET /orders` · `GET /orders/:id` · `POST /orders` · `PATCH /orders/:id/status`                         |
 | Users     | `GET /users/profile` · `PUT /users/profile` · `GET /users/wishlist` · `POST/DELETE /users/wishlist/:id` |
@@ -214,16 +214,16 @@ All project documentation lives in the `/docs` folder:
 
 | Document                                                                          | Description                                                             |
 | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| [`MVEP_Project_Documentation.docx`](./docs/MVEP_Project_Documentation.docx)       | Full technical specification — architecture, features, roadmap, CV prep |
-| [`MVEP_API_Contract.docx`](./docs/MVEP_API_Contract.docx)                         | Complete API reference for all 32 MSW endpoints                         |
-| [`MVEP_Test_Cases_and_Scenarios.docx`](./docs/MVEP_Test_Cases_and_Scenarios.docx) | 60 documented test cases across 8 modules                               |
+| [`project-spec.md`](./docs/project-spec.md) | Full technical specification — architecture, features, roadmap, CV prep |
+| [`api-contract.md`](./docs/api-contract.md) | Complete API reference including request/response schemas                |
+| [`test-cases.md`](./docs/test-cases.md)     | 60 documented test cases across 8 modules                               |
 
 ---
 
 ## 🗺️ Roadmap
 
 - [x] Project scaffolding and architecture
-- [ ] Authentication (login, register, role guards)
+- [x] Authentication — login, register, email verification, role-based guards
 - [ ] Vendor dashboard — product CRUD
 - [ ] Vendor dashboard — order management
 - [ ] Vendor dashboard — analytics charts

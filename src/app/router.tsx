@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PrivateRoute } from '@/features/auth/components/PrivateRoute';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
+import { EmailVerificationPage } from '@/pages/auth/EmailVerificationPage';
 import { VendorDashboardPage } from '@/pages/vendor/DashboardPage';
 import { VendorProductsPage } from '@/pages/vendor/ProductsPage';
 import { VendorOrdersPage } from '@/pages/vendor/OrdersPage';
@@ -16,9 +17,10 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/store" replace /> },
 
-  // Auth — public only
+  // Auth — public
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
+  { path: '/verify-email', element: <EmailVerificationPage /> },
 
   // Vendor portal — vendor + admin only
   { path: '/vendor', element: <Navigate to="/vendor/dashboard" replace /> },
@@ -39,7 +41,7 @@ export const router = createBrowserRouter([
     element: <PrivateRoute allowedRoles={['vendor', 'admin']}><VendorAnalyticsPage /></PrivateRoute>,
   },
 
-  // Customer storefront — storefront is public, order history requires auth
+  // Customer storefront — public browsing, auth required for orders
   { path: '/store', element: <StorefrontPage /> },
   { path: '/store/product/:id', element: <ProductDetailPage /> },
   { path: '/store/cart', element: <CartPage /> },
