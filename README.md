@@ -56,6 +56,8 @@
 
 ## 🏗️ Architecture
 
+![MVEP Component Architecture](./docs/mvep_component_architecture.svg)
+
 ```
 src/
 ├── app/                    # Redux store + RTK Query base API
@@ -212,11 +214,12 @@ Full endpoint reference including request bodies, query parameters, and response
 
 All project documentation lives in the `/docs` folder:
 
-| Document                                                                          | Description                                                             |
-| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| [`project-spec.md`](./docs/project-spec.md) | Full technical specification — architecture, features, roadmap, CV prep |
-| [`api-contract.md`](./docs/api-contract.md) | Complete API reference including request/response schemas                |
-| [`test-cases.md`](./docs/test-cases.md)     | 60 documented test cases across 8 modules                               |
+| Document                                                                                                             | Description                                                             |
+| -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [`project-spec.md`](./docs/project-spec.md)                                     | Full technical specification — architecture, features, roadmap, CV prep |
+| [`api-contract.md`](./docs/api-contract.md)                                     | Complete API reference including request/response schemas                |
+| [`test-cases.md`](./docs/test-cases.md)                                         | 60 documented test cases across 8 modules                               |
+| [`mvep_component_architecture.svg`](./docs/mvep_component_architecture.svg)     | Interactive component hierarchy diagram — all 8 layers                  |
 
 ---
 
