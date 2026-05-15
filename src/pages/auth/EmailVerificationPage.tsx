@@ -41,6 +41,7 @@ export function EmailVerificationPage() {
       const user = await verifyEmail(email, data.code);
       navigate(user.role === 'customer' ? '/store' : '/vendor/dashboard', { replace: true });
     } catch {
+      
       // error surfaced via Redux state
     }
   }
