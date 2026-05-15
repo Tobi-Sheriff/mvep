@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PrivateRoute } from '@/features/auth/components/PrivateRoute';
 import { DashboardLayout } from '@/shared/components/layout/DashboardLayout';
+import { StorefrontLayout } from '@/shared/components/layout/StorefrontLayout';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
 import { EmailVerificationPage } from '@/pages/auth/EmailVerificationPage';
@@ -13,6 +14,7 @@ import { ProductDetailPage } from '@/pages/customer/ProductDetailPage';
 import { CartPage } from '@/pages/customer/CartPage';
 import { CheckoutPage } from '@/pages/customer/CheckoutPage';
 import { OrderHistoryPage } from '@/pages/customer/OrderHistoryPage';
+import { WishlistPage } from '@/pages/customer/WishlistPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -40,14 +42,32 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Customer storefront — public browsing, auth required for orders
-  { path: '/store', element: <StorefrontPage /> },
-  { path: '/store/product/:id', element: <ProductDetailPage /> },
-  { path: '/store/cart', element: <CartPage /> },
-  { path: '/store/checkout', element: <CheckoutPage /> },
+  // Customer storefront — StorefrontLayout wraps all /store/* routes
   {
-    path: '/store/orders',
-    element: <PrivateRoute allowedRoles={['customer']}><OrderHistoryPage /></PrivateRoute>,
+    path: '/store',
+    element: <StorefrontLayout />,
+    children: [
+      { index: true, element: <StorefrontPage /> },
+      { path: 'product/:id', element: <ProductDetailPage /> },
+      { path: 'cart', element: <CartPage /> },
+      { path: 'checkout', element: <CheckoutPage /> },
+      {
+        path: 'orders',
+        element: (
+          <PrivateRoute allowedRoles={['customer']}>
+            <OrderHistoryPage />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: 'wishlist',
+        element: (
+          <PrivateRoute allowedRoles={['customer', 'vendor', 'admin']}>
+            <WishlistPage />
+          </PrivateRoute>
+        ),
+      },
+    ],
   },
 
   { path: '*', element: <NotFoundPage /> },
