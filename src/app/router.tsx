@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PrivateRoute } from '@/features/auth/components/PrivateRoute';
+import { DashboardLayout } from '@/shared/components/layout/DashboardLayout';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
 import { EmailVerificationPage } from '@/pages/auth/EmailVerificationPage';
@@ -22,23 +23,21 @@ export const router = createBrowserRouter([
   { path: '/register', element: <RegisterPage /> },
   { path: '/verify-email', element: <EmailVerificationPage /> },
 
-  // Vendor portal — vendor + admin only
-  { path: '/vendor', element: <Navigate to="/vendor/dashboard" replace /> },
+  // Vendor portal — sidebar layout, vendor + admin only
   {
-    path: '/vendor/dashboard',
-    element: <PrivateRoute allowedRoles={['vendor', 'admin']}><VendorDashboardPage /></PrivateRoute>,
-  },
-  {
-    path: '/vendor/products',
-    element: <PrivateRoute allowedRoles={['vendor', 'admin']}><VendorProductsPage /></PrivateRoute>,
-  },
-  {
-    path: '/vendor/orders',
-    element: <PrivateRoute allowedRoles={['vendor', 'admin']}><VendorOrdersPage /></PrivateRoute>,
-  },
-  {
-    path: '/vendor/analytics',
-    element: <PrivateRoute allowedRoles={['vendor', 'admin']}><VendorAnalyticsPage /></PrivateRoute>,
+    path: '/vendor',
+    element: (
+      <PrivateRoute allowedRoles={['vendor', 'admin']}>
+        <DashboardLayout />
+      </PrivateRoute>
+    ),
+    children: [
+      { index: true, element: <Navigate to="dashboard" replace /> },
+      { path: 'dashboard', element: <VendorDashboardPage /> },
+      { path: 'products', element: <VendorProductsPage /> },
+      { path: 'orders', element: <VendorOrdersPage /> },
+      { path: 'analytics', element: <VendorAnalyticsPage /> },
+    ],
   },
 
   // Customer storefront — public browsing, auth required for orders

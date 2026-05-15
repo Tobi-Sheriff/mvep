@@ -38,6 +38,8 @@ The backend is entirely mocked via MSW v2, making the project fully self-contain
 
 ## Portal Architecture
 
+> See the full component hierarchy: [`mvep_component_architecture.svg`](./mvep_component_architecture.svg)
+
 ### Vendor Dashboard (`/vendor/*`)
 
 - Sidebar navigation: Dashboard · Products · Orders · Analytics
