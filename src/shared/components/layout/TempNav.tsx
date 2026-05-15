@@ -1,4 +1,6 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useAuthActions } from '@/features/auth/hooks/useAuthActions';
 
 const links = [
   { to: '/login', label: 'Login', group: 'auth' },
@@ -26,10 +28,19 @@ const groupActiveColors: Record<string, string> = {
 };
 
 export function TempNav() {
+  const { isAuthenticated, user } = useAuth();
+  const { signOut } = useAuthActions();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    signOut();
+    navigate('/login', { replace: true });
+  }
+
   return (
     <nav className="flex flex-wrap items-center gap-2 border-b bg-white px-4 py-3 shadow-sm">
       <span className="mr-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
-        Phase 1 Nav
+        Dev Nav
       </span>
       {links.map(({ to, label, group }) => (
         <NavLink
@@ -44,6 +55,28 @@ export function TempNav() {
           {label}
         </NavLink>
       ))}
+      <div className="ml-auto flex items-center gap-2">
+        {isAuthenticated ? (
+          <>
+            <span className="text-xs text-slate-500">
+              {user?.name} <span className="font-medium text-slate-700">({user?.role})</span>
+            </span>
+            <button
+              onClick={handleLogout}
+              className="rounded bg-red-100 px-3 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-200"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <NavLink
+            to="/login"
+            className="rounded bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-200"
+          >
+            Sign in
+          </NavLink>
+        )}
+      </div>
     </nav>
   );
 }
