@@ -1,22 +1,16 @@
-import { TempNav } from '@/shared/components/layout/TempNav';
+import { CreditCard } from 'lucide-react';
 
 export function CheckoutPage() {
   return (
-    <div>
-      <TempNav />
-      <main className="flex min-h-[calc(100vh-52px)] flex-col items-center justify-center bg-green-50 p-8">
-        <div className="w-full max-w-lg rounded-xl border bg-white p-8 shadow-sm">
-          <div className="mb-6 flex items-center gap-3">
-            <span className="rounded-lg bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
-              Phase 5
-            </span>
-            <h1 className="text-2xl font-bold text-gray-900">Checkout</h1>
-          </div>
-          <p className="text-sm text-gray-500">
-            Multi-step checkout (Address → Payment → Review → Confirm) with Zod validation coming in Phase 5.
-          </p>
-        </div>
-      </main>
+    <div className="mx-auto max-w-7xl px-4 py-20 text-center lg:px-6">
+      <CreditCard size={48} className="mx-auto mb-4 text-slate-200" />
+      <span className="mb-3 inline-block rounded-lg bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700">
+        Phase 5
+      </span>
+      <h1 className="mt-2 text-2xl font-bold text-slate-800">Checkout</h1>
+      <p className="mt-2 text-slate-400">
+        Multi-step checkout (Address → Payment → Review → Confirm) coming in Phase 5.
+      </p>
     </div>
   );
 }

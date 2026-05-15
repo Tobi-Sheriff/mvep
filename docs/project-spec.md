@@ -51,7 +51,7 @@ The backend is entirely mocked via MSW v2, making the project fully self-contain
 ### Customer Storefront (`/store/*`)
 
 - Top navigation with search bar and cart badge
-- **Catalogue** — product grid, infinite scroll / pagination, real-time search with debounce, sidebar filters (category, price range, star rating, stock)
+- **Catalogue** — product grid, pagination, real-time search with debounce, sidebar filters (category, price range, star rating)
 - **Product detail** — image gallery, description, reviews, add-to-cart, wishlist toggle
 - **Cart** — slide-in drawer, quantity controls, line totals, proceed to checkout
 - **Checkout** — 4-step wizard: Address → Payment → Review → Confirmation
@@ -152,8 +152,8 @@ src/
 |-------|-------|--------|
 | 1 | Project foundation — Vite, Tailwind, ESLint, routing skeleton, MSW | ✅ Done |
 | 2 | Authentication — login, register, email verification, role guards | ✅ Done |
-| 3 | Vendor Dashboard — product CRUD, order management, analytics | Upcoming |
-| 4 | Customer Storefront — catalogue, search, filters, product detail | Upcoming |
+| 3 | Vendor Dashboard — product CRUD, order management, analytics | ✅ Done |
+| 4 | Customer Storefront — catalogue, search, filters, product detail | ✅ Done |
 | 5 | Cart & Checkout — cart slice, multi-step checkout, order confirm | Upcoming |
 | 6 | RTK Query migration — replace all Axios calls | Upcoming |
 | 7 | Polish — code splitting, skeletons, error boundaries, a11y | Upcoming |
@@ -165,8 +165,8 @@ src/
 ## CV Talking Points
 
 - "Implemented JWT authentication with role-based access control across three user types"
-- "Used MSW v2 to mock a 32-endpoint REST API, enabling full UI development without a backend"
+- "Used MSW v2 to mock a 23-endpoint REST API across 5 modules, enabling full UI development without a backend"
 - "Applied the domain-sliced architecture pattern to separate vendor, customer, and auth concerns"
 - "Separated server state (RTK Query) from client state (Redux slices) to avoid cache duplication"
 - "Implemented optimistic UI updates with rollback on error for order status changes and wishlist"
-- "Achieved Lighthouse Performance score ≥ 90 via React.lazy code splitting and skeleton loaders"
+- "Implemented skeleton loaders on all async surfaces, eliminating layout shift during data fetches (React.lazy code splitting planned for Phase 7)"

@@ -2,7 +2,7 @@
 
 # 🛒 Multi-Vendor E-Commerce Platform
 
-**MVEP** is an enterprise-grade React SPA featuring a dual-portal architecture — a full **Vendor Dashboard** and a **Customer Storefront** — with role-based access control, server-state management via RTK Query, and a multi-step checkout flow.
+**MVEP** is an enterprise-grade React SPA featuring a dual-portal architecture — a full **Vendor Dashboard** and a **Customer Storefront** — with role-based access control, JWT authentication, and domain-sliced state management.
 
 <br/>
 
@@ -29,19 +29,20 @@
 
 ## ✨ Features
 
-### Vendor Dashboard (`/dashboard`)
+### Vendor Dashboard (`/vendor/*`)
 
-- **Product management** — full CRUD with bulk actions, stock tracking, and low-inventory alerts
-- **Order management** — status workflow (Pending → Processing → Shipped → Delivered), filterable order list
-- **Analytics** — revenue charts (7d / 30d / 90d / 1y), top products, conversion funnel, CSV export
+- **Product management** — full CRUD with search, category filter, stock tracking, and paginated product table
+- **Order management** — status workflow (Pending → Processing → Shipped → Delivered), filterable by status, optimistic updates with rollback
+- **Analytics** — revenue line chart (7d / 30d / 90d / 1y), daily orders bar chart, top products table, period selector
 
-### Customer Storefront (`/shop`)
+### Customer Storefront (`/store/*`)
 
-- **Product catalogue** — infinite scroll, real-time search with debounce, multi-criteria filtering (category, price range, rating, stock)
-- **Shopping cart** — optimistic UI updates, quantity management, localStorage persistence
-- **Multi-step checkout** — Delivery → Payment → Review → Confirmation with Zod validation at each step
-- **Wishlist** — optimistic toggle, move-to-cart, dedicated wishlist page
-- **Order history** — live status tracking per order
+- **Product catalogue** — paginated grid, real-time search with debounce, sidebar filters (category, price range, star rating)
+- **Product detail** — image gallery, reviews, quantity picker, add-to-cart, wishlist toggle
+- **Wishlist** — dedicated page, optimistic toggle with rollback
+- **Shopping cart** — _(Phase 5)_ quantity management, localStorage persistence
+- **Multi-step checkout** — _(Phase 5)_ Address → Payment → Review → Confirmation with Zod validation
+- **Order history** — _(Phase 5)_ per-order status timeline
 
 ### Platform-wide
 
@@ -49,8 +50,7 @@
 - 🛡️ Protected routes with role-based access guards
 - 💀 Skeleton loaders on all async surfaces (no spinners)
 - 🚨 Error Boundaries at global and feature level
-- ♿ Accessible — semantic HTML, ARIA labels, keyboard navigation, 4.5:1 contrast minimum
-- ⚡ Code-split with `React.lazy` + `Suspense` on all route-level pages
+- ♿ Semantic HTML, keyboard-navigable interactive elements
 
 ---
 
@@ -60,32 +60,38 @@
 
 ```
 src/
-├── app/                    # Redux store + RTK Query base API
+├── app/                    # Redux store, router, typed hooks
 ├── features/               # Domain-sliced feature modules
-│   ├── auth/               # Login, register, role guards
+│   ├── auth/               # Login, register, email verification, role guards
 │   ├── vendor/             # Dashboard, products, orders, analytics
-│   ├── customer/           # Storefront, cart, checkout, wishlist
-│   └── admin/              # Admin panel (super-user)
-├── components/
-│   ├── ui/                 # shadcn/ui primitives
-│   └── layouts/            # Page shells, nav, sidebar
-├── hooks/                  # useAuth · useCart · useDebounce · usePagination
-├── lib/                    # Utility functions, formatters
-├── mocks/                  # MSW handlers + fixture data
+│   ├── customer/           # Storefront, product detail, wishlist
+│   ├── cart/               # Cart slice + types
+│   ├── orders/             # Order types
+│   └── analytics/          # Analytics types + hooks
+├── shared/
+│   ├── components/
+│   │   ├── ui/             # Custom UI primitives (Skeleton, Badge, Modal…)
+│   │   └── layout/         # AuthLayout, DashboardLayout, StorefrontLayout
+│   ├── hooks/              # useDebounce
+│   └── utils/              # axiosInstance (Axios + auth interceptor), cn()
+├── mocks/                  # MSW v2 handlers + fixture data
 └── pages/                  # Route-level page components
+    ├── auth/               # LoginPage, RegisterPage, EmailVerificationPage
+    ├── vendor/             # DashboardPage, ProductsPage, OrdersPage, AnalyticsPage
+    └── customer/           # StorefrontPage, ProductDetailPage, CartPage…
 ```
 
 ### State management approach
 
-| Concern                               | Tool                      | Why                                                       |
-| ------------------------------------- | ------------------------- | --------------------------------------------------------- |
-| Remote data (products, orders, users) | RTK Query                 | Automatic caching, tag-based invalidation, no boilerplate |
-| Auth state                            | Redux slice (`authSlice`) | Persists across routes, readable by any component         |
-| Cart state                            | Redux slice (`cartSlice`) | Synced to localStorage, optimistic updates                |
-| UI state (modals, filters)            | Local `useState`          | Scoped — no reason to globalise                           |
-| Form state                            | React Hook Form + Zod     | Uncontrolled inputs, schema validation, zero re-renders   |
+| Concern                               | Tool                                           | Why                                                       |
+| ------------------------------------- | ---------------------------------------------- | --------------------------------------------------------- |
+| Remote data (products, orders, users) | Axios + custom hooks (RTK Query in Phase 6)    | Manual `useEffect` fetch now; tag-based caching planned   |
+| Auth state                            | Redux slice (`authSlice`)                      | Persists across routes, readable by any component         |
+| Cart state                            | Redux slice (`cartSlice`)                      | Synced to localStorage, optimistic updates                |
+| UI state (modals, filters)            | Local `useState`                               | Scoped — no reason to globalise                           |
+| Form state                            | React Hook Form + Zod                          | Uncontrolled inputs, schema validation, zero re-renders   |
 
-> **Key architectural decision:** RTK Query handles _server state_ (remote data) while Redux slices handle _client state_ (UI and session data). Not everything belongs in Redux — this separation is deliberate.
+> **Key architectural decision:** Server state (remote data) will move to RTK Query in Phase 6 while Redux slices handle client state (auth, cart). This separation avoids caching remote data in Redux unnecessarily.
 
 ---
 
@@ -97,9 +103,9 @@ src/
 | Language   | TypeScript 5                                |
 | Build tool | Vite 5                                      |
 | Routing    | React Router v6 (nested, protected routes)  |
-| State      | Redux Toolkit 2 + RTK Query                 |
-| Forms      | React Hook Form + Zod                       |
-| Styling    | Tailwind CSS + shadcn/ui                    |
+| State      | Redux Toolkit 2 (RTK Query migration in Phase 6) |
+| Forms      | React Hook Form + Zod                            |
+| Styling    | Tailwind CSS (custom component library)          |
 | Charts     | Recharts                                    |
 | Mock API   | Mock Service Worker (MSW v2)                |
 | Testing    | Vitest + React Testing Library + Playwright |
@@ -124,22 +130,11 @@ cd mvep
 # 2. Install dependencies
 npm install
 
-# 3. Copy environment variables
-cp .env.example .env.local
-
-# 4. Start the dev server (MSW auto-starts)
+# 3. Start the dev server (MSW auto-starts in development)
 npm run dev
 ```
 
-The app runs at `http://localhost:5173`. MSW intercepts all API calls — no backend needed.
-
-### Environment variables
-
-```env
-VITE_API_BASE_URL=http://localhost:3001
-VITE_APP_NAME=MVEP
-VITE_ENABLE_MSW=true
-```
+The app runs at `http://localhost:5173`. MSW intercepts all `/api/v1` calls automatically — no backend or environment variables needed.
 
 ### Test accounts (MSW fixture data)
 
@@ -187,7 +182,7 @@ All endpoints are mocked with MSW. Base URL: `/api/v1`
 | --------- | ------------------------------------------------------------------------------------------------------- |
 | Auth      | `POST /auth/register` · `POST /auth/verify-email` · `POST /auth/resend-verification` · `POST /auth/login` · `POST /auth/logout` · `GET /auth/me` |
 | Products  | `GET /products` · `GET /products/:id` · `POST /products` · `PUT /products/:id` · `DELETE /products/:id` |
-| Orders    | `GET /orders` · `GET /orders/:id` · `POST /orders` · `PATCH /orders/:id/status`                         |
+| Orders    | `GET /orders` · `GET /orders/:id` · `PATCH /orders/:id/status` · `POST /orders` _(Phase 5)_              |
 | Users     | `GET /users/profile` · `PUT /users/profile` · `GET /users/wishlist` · `POST/DELETE /users/wishlist/:id` |
 | Analytics | `GET /analytics/revenue` · `GET /analytics/products/top` · `GET /analytics/overview`                    |
 
@@ -227,12 +222,12 @@ All project documentation lives in the `/docs` folder:
 
 - [x] Project scaffolding and architecture
 - [x] Authentication — login, register, email verification, role-based guards
-- [ ] Vendor dashboard — product CRUD
-- [ ] Vendor dashboard — order management
-- [ ] Vendor dashboard — analytics charts
-- [ ] Customer storefront — product catalogue
+- [x] Vendor dashboard — product CRUD
+- [x] Vendor dashboard — order management
+- [x] Vendor dashboard — analytics charts
+- [x] Customer storefront — product catalogue, search, filters, pagination
+- [x] Customer storefront — product detail, reviews, wishlist
 - [ ] Customer storefront — cart and checkout
-- [ ] Customer storefront — wishlist and order history
 - [ ] RTK Query migration (replace all manual fetches)
 - [ ] Performance polish (code splitting, skeletons, error boundaries)
 - [ ] Test suite (unit + integration + E2E)
