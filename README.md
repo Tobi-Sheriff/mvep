@@ -85,13 +85,13 @@ src/
 
 | Concern                               | Tool                                           | Why                                                       |
 | ------------------------------------- | ---------------------------------------------- | --------------------------------------------------------- |
-| Remote data (products, orders, users) | Axios + custom hooks (RTK Query in Phase 6)    | Manual `useEffect` fetch now; tag-based caching planned   |
+| Remote data (products, orders, users) | RTK Query                                      | Automatic caching, tag-based invalidation, no boilerplate |
 | Auth state                            | Redux slice (`authSlice`)                      | Persists across routes, readable by any component         |
 | Cart state                            | Redux slice (`cartSlice`)                      | Synced to localStorage, optimistic updates                |
 | UI state (modals, filters)            | Local `useState`                               | Scoped — no reason to globalise                           |
 | Form state                            | React Hook Form + Zod                          | Uncontrolled inputs, schema validation, zero re-renders   |
 
-> **Key architectural decision:** Server state (remote data) will move to RTK Query in Phase 6 while Redux slices handle client state (auth, cart). This separation avoids caching remote data in Redux unnecessarily.
+> **Key architectural decision:** RTK Query handles _server state_ (remote data) while Redux slices handle _client state_ (auth token, cart). Not everything belongs in Redux — this separation avoids caching remote data in Redux unnecessarily.
 
 ---
 
@@ -103,7 +103,7 @@ src/
 | Language   | TypeScript 5                                |
 | Build tool | Vite 5                                      |
 | Routing    | React Router v6 (nested, protected routes)  |
-| State      | Redux Toolkit 2 (RTK Query migration in Phase 6) |
+| State      | Redux Toolkit 2 + RTK Query                      |
 | Forms      | React Hook Form + Zod                            |
 | Styling    | Tailwind CSS (custom component library)          |
 | Charts     | Recharts                                    |
@@ -228,7 +228,7 @@ All project documentation lives in the `/docs` folder:
 - [x] Customer storefront — product catalogue, search, filters, pagination
 - [x] Customer storefront — product detail, reviews, wishlist
 - [x] Customer storefront — cart, multi-step checkout, order history
-- [ ] RTK Query migration (replace all manual fetches)
+- [x] RTK Query migration (replace all manual fetches)
 - [ ] Performance polish (code splitting, skeletons, error boundaries)
 - [ ] Test suite (unit + integration + E2E)
 - [ ] Deployment (Vercel + GitHub Actions)
