@@ -155,7 +155,7 @@ src/
 | 3 | Vendor Dashboard — product CRUD, order management, analytics | ✅ Done |
 | 4 | Customer Storefront — catalogue, search, filters, product detail | ✅ Done |
 | 5 | Cart & Checkout — cart slice, multi-step checkout, order confirm | ✅ Done |
-| 6 | RTK Query migration — replace all Axios calls | Upcoming |
+| 6 | RTK Query migration — replace all Axios calls | ✅ Done |
 | 7 | Polish — code splitting, skeletons, error boundaries, a11y | Upcoming |
 | 8 | Testing — 60 test cases, Vitest + Playwright | Upcoming |
 | 9 | Deployment — Vercel + GitHub Actions CI/CD | Upcoming |

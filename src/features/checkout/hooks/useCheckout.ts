@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { api } from '@/shared/utils/axiosInstance';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { clearCart } from '@/features/cart/slice/cartSlice';
+import { usePlaceOrderMutation } from '@/features/orders/api/customerOrdersApi';
 import type { CheckoutAddress, CheckoutPayment, CheckoutStep } from '@/features/checkout/types';
 
 export function useCheckout() {
@@ -9,7 +9,6 @@ export function useCheckout() {
   const [address, setAddress] = useState<CheckoutAddress | null>(null);
   const [payment, setPayment] = useState<CheckoutPayment | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [isPlacing, setIsPlacing] = useState(false);
   const [placeError, setPlaceError] = useState<string | null>(null);
 
   const dispatch = useAppDispatch();
@@ -18,12 +17,13 @@ export function useCheckout() {
   const shipping = subtotal >= 50 || subtotal === 0 ? 0 : 5.99;
   const total = subtotal + shipping;
 
+  const [placeOrderMutation, { isLoading: isPlacing }] = usePlaceOrderMutation();
+
   async function placeOrder() {
     if (!address) return;
-    setIsPlacing(true);
     setPlaceError(null);
     try {
-      const { data } = await api.post<{ id: string }>('/orders', {
+      const result = await placeOrderMutation({
         items: items.map((i) => ({
           productId: i.productId,
           productName: i.name,
@@ -31,14 +31,12 @@ export function useCheckout() {
           unitPrice: i.price,
         })),
         total,
-      });
-      setOrderId(data.id);
+      }).unwrap();
+      setOrderId(result.id);
       dispatch(clearCart());
       setStep(4);
     } catch {
       setPlaceError('Failed to place order. Please try again.');
-    } finally {
-      setIsPlacing(false);
     }
   }
 
