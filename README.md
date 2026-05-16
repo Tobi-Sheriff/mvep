@@ -182,7 +182,7 @@ All endpoints are mocked with MSW. Base URL: `/api/v1`
 | --------- | ------------------------------------------------------------------------------------------------------- |
 | Auth      | `POST /auth/register` · `POST /auth/verify-email` · `POST /auth/resend-verification` · `POST /auth/login` · `POST /auth/logout` · `GET /auth/me` |
 | Products  | `GET /products` · `GET /products/:id` · `POST /products` · `PUT /products/:id` · `DELETE /products/:id` |
-| Orders    | `GET /orders` · `GET /orders/:id` · `PATCH /orders/:id/status` · `POST /orders` _(Phase 5)_              |
+| Orders    | `GET /orders` · `GET /orders/:id` · `PATCH /orders/:id/status` · `POST /orders`                          |
 | Users     | `GET /users/profile` · `PUT /users/profile` · `GET /users/wishlist` · `POST/DELETE /users/wishlist/:id` |
 | Analytics | `GET /analytics/revenue` · `GET /analytics/products/top` · `GET /analytics/overview`                    |
 
@@ -227,7 +227,7 @@ All project documentation lives in the `/docs` folder:
 - [x] Vendor dashboard — analytics charts
 - [x] Customer storefront — product catalogue, search, filters, pagination
 - [x] Customer storefront — product detail, reviews, wishlist
-- [ ] Customer storefront — cart and checkout
+- [x] Customer storefront — cart, multi-step checkout, order history
 - [ ] RTK Query migration (replace all manual fetches)
 - [ ] Performance polish (code splitting, skeletons, error boundaries)
 - [ ] Test suite (unit + integration + E2E)
