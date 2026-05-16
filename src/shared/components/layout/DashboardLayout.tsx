@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, BarChart3, LogOut, Menu, Store } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, BarChart3, LogOut, Menu, Store, Moon, Sun } from 'lucide-react';
 import { cn } from '@/shared/utils/cn';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useAuthActions } from '@/features/auth/hooks/useAuthActions';
+import { useDarkMode } from '@/shared/hooks/useDarkMode';
+import { ErrorBoundary } from '@/shared/components/ui/ErrorBoundary';
+import { PageSkeleton } from '@/shared/components/ui/PageSkeleton';
 
 const NAV_ITEMS = [
   { to: '/vendor/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -12,7 +15,13 @@ const NAV_ITEMS = [
   { to: '/vendor/analytics', icon: BarChart3, label: 'Analytics' },
 ];
 
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+interface SidebarContentProps {
+  onNavigate?: () => void;
+  isDark: boolean;
+  onToggleDark: () => void;
+}
+
+function SidebarContent({ onNavigate, isDark, onToggleDark }: SidebarContentProps) {
   const { user } = useAuth();
   const { signOut } = useAuthActions();
   const navigate = useNavigate();
@@ -32,7 +41,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </span>
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
+      <nav aria-label="Sidebar navigation" className="flex-1 space-y-1 p-4">
         {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
@@ -47,7 +56,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               )
             }
           >
-            <Icon size={18} />
+            <Icon size={18} aria-hidden="true" />
             {label}
           </NavLink>
         ))}
@@ -64,10 +73,19 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </div>
         </div>
         <button
+          onClick={onToggleDark}
+          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="mb-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white"
+        >
+          {isDark ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
+          {isDark ? 'Light mode' : 'Dark mode'}
+        </button>
+        <button
           onClick={handleSignOut}
           className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white"
+          aria-label="Sign out"
         >
-          <LogOut size={16} />
+          <LogOut size={16} aria-hidden="true" />
           Sign out
         </button>
       </div>
@@ -77,12 +95,13 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
 export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isDark, toggle } = useDarkMode();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-800">
       {/* Desktop sidebar */}
       <div className="hidden w-64 flex-shrink-0 lg:flex lg:flex-col">
-        <SidebarContent />
+        <SidebarContent isDark={isDark} onToggleDark={toggle} />
       </div>
 
       {/* Mobile sidebar overlay */}
@@ -90,26 +109,42 @@ export function DashboardLayout() {
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
           <div className="relative flex h-full w-64 flex-col">
-            <SidebarContent onNavigate={() => setSidebarOpen(false)} />
+            <SidebarContent
+              onNavigate={() => setSidebarOpen(false)}
+              isDark={isDark}
+              onToggleDark={toggle}
+            />
           </div>
         </div>
       )}
 
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Mobile top bar */}
-        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 lg:hidden">
+        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-900 lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+            aria-label="Open navigation menu"
+            aria-expanded={sidebarOpen}
+            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
           >
-            <Menu size={20} />
+            <Menu size={20} aria-hidden="true" />
           </button>
-          <span className="font-semibold text-slate-800">MVEP Vendor</span>
-          <div className="w-9" />
+          <span className="font-semibold text-slate-800 dark:text-white">MVEP Vendor</span>
+          <button
+            onClick={toggle}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+          >
+            {isDark ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
+          </button>
         </header>
 
         <main className="flex-1 overflow-y-auto">
-          <Outlet />
+          <ErrorBoundary>
+            <Suspense fallback={<PageSkeleton />}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
     </div>

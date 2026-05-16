@@ -1,31 +1,54 @@
+import { lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PrivateRoute } from '@/features/auth/components/PrivateRoute';
 import { DashboardLayout } from '@/shared/components/layout/DashboardLayout';
 import { StorefrontLayout } from '@/shared/components/layout/StorefrontLayout';
-import { LoginPage } from '@/pages/auth/LoginPage';
-import { RegisterPage } from '@/pages/auth/RegisterPage';
-import { EmailVerificationPage } from '@/pages/auth/EmailVerificationPage';
-import { VendorDashboardPage } from '@/pages/vendor/DashboardPage';
-import { VendorProductsPage } from '@/pages/vendor/ProductsPage';
-import { VendorOrdersPage } from '@/pages/vendor/OrdersPage';
-import { VendorAnalyticsPage } from '@/pages/vendor/AnalyticsPage';
-import { StorefrontPage } from '@/pages/customer/StorefrontPage';
-import { ProductDetailPage } from '@/pages/customer/ProductDetailPage';
-import { CartPage } from '@/pages/customer/CartPage';
-import { CheckoutPage } from '@/pages/customer/CheckoutPage';
-import { OrderHistoryPage } from '@/pages/customer/OrderHistoryPage';
-import { WishlistPage } from '@/pages/customer/WishlistPage';
-import { NotFoundPage } from '@/pages/NotFoundPage';
+
+// Auth pages
+const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage').then((m) => ({ default: m.RegisterPage })));
+const EmailVerificationPage = lazy(() =>
+  import('@/pages/auth/EmailVerificationPage').then((m) => ({ default: m.EmailVerificationPage })),
+);
+
+// Vendor pages — loaded together as one chunk (same portal)
+const VendorDashboardPage = lazy(() =>
+  import('@/pages/vendor/DashboardPage').then((m) => ({ default: m.VendorDashboardPage })),
+);
+const VendorProductsPage = lazy(() =>
+  import('@/pages/vendor/ProductsPage').then((m) => ({ default: m.VendorProductsPage })),
+);
+const VendorOrdersPage = lazy(() =>
+  import('@/pages/vendor/OrdersPage').then((m) => ({ default: m.VendorOrdersPage })),
+);
+const VendorAnalyticsPage = lazy(() =>
+  import('@/pages/vendor/AnalyticsPage').then((m) => ({ default: m.VendorAnalyticsPage })),
+);
+
+// Customer pages
+const StorefrontPage = lazy(() =>
+  import('@/pages/customer/StorefrontPage').then((m) => ({ default: m.StorefrontPage })),
+);
+const ProductDetailPage = lazy(() =>
+  import('@/pages/customer/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage })),
+);
+const CartPage = lazy(() => import('@/pages/customer/CartPage').then((m) => ({ default: m.CartPage })));
+const CheckoutPage = lazy(() => import('@/pages/customer/CheckoutPage').then((m) => ({ default: m.CheckoutPage })));
+const OrderHistoryPage = lazy(() =>
+  import('@/pages/customer/OrderHistoryPage').then((m) => ({ default: m.OrderHistoryPage })),
+);
+const WishlistPage = lazy(() => import('@/pages/customer/WishlistPage').then((m) => ({ default: m.WishlistPage })));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/store" replace /> },
 
-  // Auth — public
+  // Auth — public, Suspense boundary is in main.tsx
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
   { path: '/verify-email', element: <EmailVerificationPage /> },
 
-  // Vendor portal — sidebar layout, vendor + admin only
+  // Vendor portal — Suspense boundary is in DashboardLayout's Outlet
   {
     path: '/vendor',
     element: (
@@ -42,7 +65,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // Customer storefront — StorefrontLayout wraps all /store/* routes
+  // Customer storefront — Suspense boundary is in StorefrontLayout's Outlet
   {
     path: '/store',
     element: <StorefrontLayout />,
