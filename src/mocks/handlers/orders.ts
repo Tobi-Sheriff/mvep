@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import type { Order, OrderStatus, OrdersResponse, OrderItem } from '@/features/orders/types';
 
-let orders: Order[] = [
+export let orders: Order[] = [
   { id: 'o1', customerId: 'c1', customerName: 'Alice Johnson', customerEmail: 'alice@example.com', items: [{ productId: 'p1', productName: 'Wireless Headphones', quantity: 1, unitPrice: 249.99 }], status: 'pending', total: 249.99, createdAt: '2024-02-18T09:00:00Z', updatedAt: '2024-02-18T09:00:00Z' },
   { id: 'o2', customerId: 'c2', customerName: 'Bob Martinez', customerEmail: 'bob@example.com', items: [{ productId: 'p3', productName: 'Running Shoes Pro', quantity: 2, unitPrice: 89.99 }, { productId: 'p4', productName: 'Yoga Mat Premium', quantity: 1, unitPrice: 49.99 }], status: 'processing', total: 229.97, createdAt: '2024-02-17T14:30:00Z', updatedAt: '2024-02-17T16:00:00Z' },
   { id: 'o3', customerId: 'c3', customerName: 'Clara Williams', customerEmail: 'clara@example.com', items: [{ productId: 'p2', productName: 'Mechanical Keyboard', quantity: 1, unitPrice: 129.99 }], status: 'shipped', total: 129.99, createdAt: '2024-02-16T11:00:00Z', updatedAt: '2024-02-17T08:00:00Z' },

@@ -28,11 +28,11 @@ The backend is entirely mocked via MSW v2, making the project fully self-contain
 
 ## User Roles
 
-| Role | Access |
-|------|--------|
-| **Customer** | Storefront, product search, cart, checkout, wishlist, order history |
-| **Vendor** | Dashboard, product CRUD, order management, analytics charts |
-| **Admin** | All vendor features + user management (super-admin seeded at startup) |
+| Role | Portal | Access |
+|------|--------|--------|
+| **Customer** | `/store/*` | Storefront, product search, cart, checkout, wishlist, order history |
+| **Vendor** | `/vendor/*` | Dashboard, product CRUD, order management, analytics (scoped to own store) |
+| **Admin** | `/admin/*` | Platform overview, user management (ban/suspend/activate), all vendors, all orders |
 
 ---
 
@@ -47,6 +47,15 @@ The backend is entirely mocked via MSW v2, making the project fully self-contain
 - **Products** — paginated table with add/edit modal and delete confirm
 - **Orders** — filterable list, status workflow: Pending → Processing → Shipped → Delivered
 - **Analytics** — Recharts line chart (revenue), bar chart (daily orders), top products table, period selector (7d / 30d / 90d / 1y)
+
+### Admin Console (`/admin/*`)
+
+- Sidebar navigation: Overview · Users · Vendors · Orders
+- Violet accent to distinguish from vendor's blue
+- **Overview** — 6 platform-wide stat cards (total revenue, orders, products, vendors, customers, new users this month) + recent orders panel + top vendors by revenue
+- **Users** — paginated table of all users; role tabs (All / Customer / Vendor / Admin); status filter; debounced search; ban / suspend / activate actions with inline confirmation
+- **Vendors** — all vendor stores with owner details, product count, order count, revenue, and account status
+- **Orders** — all platform orders regardless of vendor; status filter tabs; read-only (status changes remain the vendor's responsibility)
 
 ### Customer Storefront (`/store/*`)
 
@@ -122,6 +131,7 @@ src/
 │   │   └── types/        User, AuthState, Zod schemas
 │   ├── vendor/
 │   ├── customer/
+│   ├── admin/            AdminUser, AdminVendor, AdminStats types + adminApi (RTK Query)
 │   ├── cart/
 │   ├── orders/
 │   └── analytics/
@@ -129,8 +139,8 @@ src/
 ├── shared/
 │   ├── components/
 │   │   ├── ui/           PasswordInput, Button, Modal, Skeleton…
-│   │   └── layout/       AuthLayout, DashboardLayout, StorefrontLayout
-│   ├── hooks/            useDebounce, usePagination…
+│   │   └── layout/       AuthLayout, DashboardLayout, StorefrontLayout, AdminLayout
+│   ├── hooks/            useDebounce, useDarkMode
 │   ├── utils/            axiosInstance, formatters…
 │   └── types/            Shared TypeScript types
 │
@@ -141,6 +151,7 @@ src/
 └── pages/                Route-level page components
     ├── auth/             LoginPage, RegisterPage, EmailVerificationPage
     ├── vendor/           DashboardPage, ProductsPage, OrdersPage, AnalyticsPage
+    ├── admin/            OverviewPage, UsersPage, VendorsPage, OrdersPage
     └── customer/         StorefrontPage, ProductDetailPage, CartPage…
 ```
 
@@ -153,10 +164,11 @@ src/
 | 1 | Project foundation — Vite, Tailwind, ESLint, routing skeleton, MSW | ✅ Done |
 | 2 | Authentication — login, register, email verification, role guards | ✅ Done |
 | 3 | Vendor Dashboard — product CRUD, order management, analytics | ✅ Done |
+| 3b | Admin Console — platform overview, user management, vendor oversight, all-orders view | ✅ Done |
 | 4 | Customer Storefront — catalogue, search, filters, product detail | ✅ Done |
 | 5 | Cart & Checkout — cart slice, multi-step checkout, order confirm | ✅ Done |
 | 6 | RTK Query migration — replace all Axios calls | ✅ Done |
-| 7 | Polish — code splitting, skeletons, error boundaries, a11y | Upcoming |
+| 7 | Polish — code splitting, skeletons, error boundaries, a11y, dark mode | ✅ Done |
 | 8 | Testing — 60 test cases, Vitest + Playwright | Upcoming |
 | 9 | Deployment — Vercel + GitHub Actions CI/CD | Upcoming |
 
@@ -164,9 +176,11 @@ src/
 
 ## CV Talking Points
 
-- "Implemented JWT authentication with role-based access control across three user types"
-- "Used MSW v2 to mock a 24-endpoint REST API across 5 modules, enabling full UI development without a backend"
-- "Applied the domain-sliced architecture pattern to separate vendor, customer, and auth concerns"
+- "Implemented JWT authentication with role-based access control across three user types, each with a completely separate portal"
+- "Used MSW v2 to mock a 32-endpoint REST API across 6 modules, enabling full UI development without a backend"
+- "Applied the domain-sliced architecture pattern to separate vendor, customer, admin, and auth concerns"
 - "Separated server state (RTK Query) from client state (Redux slices) to avoid cache duplication"
-- "Implemented optimistic UI updates with rollback on error for order status changes and wishlist"
-- "Implemented skeleton loaders on all async surfaces, eliminating layout shift during data fetches (React.lazy code splitting planned for Phase 7)"
+- "Implemented optimistic UI updates with rollback on error for order status changes, wishlist toggles, and admin user status changes"
+- "Code-split all 17 route-level pages with React.lazy + Suspense and Rollup manual chunks, reducing initial bundle size"
+- "Built a platform-wide admin console with user management (ban/suspend/activate) as a completely separate portal from the vendor dashboard"
+- "Added dark mode persisted to localStorage using a custom useDarkMode hook and Tailwind's dark: class strategy"

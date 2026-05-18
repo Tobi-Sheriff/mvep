@@ -92,7 +92,14 @@ export function StorefrontLayout() {
 
             {isAuthenticated ? (
               <div className="ml-1 flex items-center gap-2">
-                {user?.role === 'vendor' || user?.role === 'admin' ? (
+                {user?.role === 'admin' ? (
+                  <Link
+                    to="/admin/overview"
+                    className="hidden rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 sm:block"
+                  >
+                    Admin console
+                  </Link>
+                ) : user?.role === 'vendor' ? (
                   <Link
                     to="/vendor/dashboard"
                     className="hidden rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 sm:block"
@@ -173,7 +180,16 @@ export function StorefrontLayout() {
                 >
                   My orders
                 </Link>
-                {(user?.role === 'vendor' || user?.role === 'admin') && (
+                {user?.role === 'admin' && (
+                  <Link
+                    to="/admin/overview"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+                  >
+                    Admin console
+                  </Link>
+                )}
+                {user?.role === 'vendor' && (
                   <Link
                     to="/vendor/dashboard"
                     onClick={() => setMobileMenuOpen(false)}

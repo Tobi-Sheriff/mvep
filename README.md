@@ -44,13 +44,21 @@
 - **Multi-step checkout** — _(Phase 5)_ Address → Payment → Review → Confirmation with Zod validation
 - **Order history** — _(Phase 5)_ per-order status timeline
 
+### Admin Console (`/admin/*`)
+
+- **Platform overview** — 6 stat cards (total revenue, orders, products, vendors, customers, new users) with recent orders and top vendors panels
+- **User management** — paginated table with role tabs, status filter, debounced search; ban / suspend / activate any customer or vendor with inline confirmation
+- **Vendor oversight** — all vendor stores with owner info, product count, order volume, and revenue
+- **Order monitoring** — all platform orders across every vendor, filterable by status; read-only (status changes remain the vendor's responsibility)
+
 ### Platform-wide
 
-- 🔐 JWT authentication with three roles: **Customer**, **Vendor**, **Admin**
+- 🔐 JWT authentication with three roles: **Customer**, **Vendor**, **Admin** — each with a fully separate portal
 - 🛡️ Protected routes with role-based access guards
 - 💀 Skeleton loaders on all async surfaces (no spinners)
 - 🚨 Error Boundaries at global and feature level
 - ♿ Semantic HTML, keyboard-navigable interactive elements
+- 🌙 Dark mode via Tailwind `dark:` class strategy, persisted to localStorage
 
 ---
 
@@ -71,13 +79,14 @@ src/
 ├── shared/
 │   ├── components/
 │   │   ├── ui/             # Custom UI primitives (Skeleton, Badge, Modal…)
-│   │   └── layout/         # AuthLayout, DashboardLayout, StorefrontLayout
-│   ├── hooks/              # useDebounce
+│   │   └── layout/         # AuthLayout, DashboardLayout, StorefrontLayout, AdminLayout
+│   ├── hooks/              # useDebounce, useDarkMode
 │   └── utils/              # axiosInstance (Axios + auth interceptor), cn()
 ├── mocks/                  # MSW v2 handlers + fixture data
 └── pages/                  # Route-level page components
     ├── auth/               # LoginPage, RegisterPage, EmailVerificationPage
     ├── vendor/             # DashboardPage, ProductsPage, OrdersPage, AnalyticsPage
+    ├── admin/              # OverviewPage, UsersPage, VendorsPage, OrdersPage
     └── customer/           # StorefrontPage, ProductDetailPage, CartPage…
 ```
 
@@ -185,6 +194,7 @@ All endpoints are mocked with MSW. Base URL: `/api/v1`
 | Orders    | `GET /orders` · `GET /orders/:id` · `PATCH /orders/:id/status` · `POST /orders`                          |
 | Users     | `GET /users/profile` · `PUT /users/profile` · `GET /users/wishlist` · `POST/DELETE /users/wishlist/:id` |
 | Analytics | `GET /analytics/revenue` · `GET /analytics/products/top` · `GET /analytics/overview`                    |
+| Admin     | `GET /admin/stats` · `GET /admin/users` · `PATCH /admin/users/:id/status` · `GET /admin/vendors` · `GET /admin/orders` |
 
 Full endpoint reference including request bodies, query parameters, and response schemas: [`/docs/MVEP_API_Contract.docx`](./docs/MVEP_API_Contract.docx)
 
@@ -229,7 +239,8 @@ All project documentation lives in the `/docs` folder:
 - [x] Customer storefront — product detail, reviews, wishlist
 - [x] Customer storefront — cart, multi-step checkout, order history
 - [x] RTK Query migration (replace all manual fetches)
-- [ ] Performance polish (code splitting, skeletons, error boundaries)
+- [x] Admin Console — platform overview, user management, vendor oversight, all-orders monitoring
+- [x] Performance polish — code splitting, skeletons, error boundaries, dark mode, a11y
 - [ ] Test suite (unit + integration + E2E)
 - [ ] Deployment (Vercel + GitHub Actions)
 

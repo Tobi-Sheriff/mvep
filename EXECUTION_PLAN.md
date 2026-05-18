@@ -56,7 +56,27 @@
 
 ---
 
-## Phase 4 — Customer Storefront (Day 13–18)
+## Phase 3b — Admin Console (Day 13–15)
+**Goal:** Separate platform-owner portal at `/admin/*` — completely distinct from the vendor dashboard, with platform-wide visibility and user management.
+
+### Steps
+1. `AdminLayout` — sidebar nav with violet accent (distinguishable from vendor's blue), dark mode toggle, `ErrorBoundary` + `Suspense` around Outlet
+2. Admin types — `AdminUser`, `AdminVendor`, `AdminStats`, query param + response types
+3. MSW handlers (`/api/v1/admin/*`) — stats, users with search/role/status filters, status PATCH, vendors, all-platform orders
+4. Export `orders` from `orders.ts` so admin handler shares the same live data array
+5. RTK Query `adminApi` — `getAdminStats`, `getAdminUsers`, `updateUserStatus` (optimistic), `getAdminVendors`, `getAdminOrders`
+6. `AdminOverviewPage` — 6 stat cards (revenue, orders, products, vendors, customers, new users) + recent orders + top vendors
+7. `AdminUsersPage` — role tabs (All / Customer / Vendor / Admin), status filter, debounced search, paginated table, ban / suspend / activate with inline confirmation banner
+8. `AdminVendorsPage` — vendor table with store name, owner, product count, order count, revenue, status
+9. `AdminOrdersPage` — all platform orders (no vendor scoping), status filter tabs, paginated
+10. Update `PrivateRoute` — admin role fallback → `/admin/overview`; vendor routes changed to `allowedRoles: ['vendor']` only
+11. Update `StorefrontLayout` — admin user sees "Admin console" link; vendor user sees "Vendor portal" link (separated, no longer combined)
+
+**Deliverable:** `admin@mvep.dev` lands at `/admin/overview` — a fully isolated portal with platform-wide stats and user management. Vendor and Admin portals are completely separate.
+
+---
+
+## Phase 4 — Customer Storefront (Day 16–21)
 **Goal:** Customer can browse, search, and filter the product catalogue.
 
 ### Steps
@@ -72,7 +92,7 @@
 
 ---
 
-## Phase 5 — Cart & Checkout (Day 19–23)
+## Phase 5 — Cart & Checkout (Day 22–26)
 **Goal:** End-to-end purchase flow with order confirmation.
 
 ### Steps
@@ -88,7 +108,7 @@
 
 ---
 
-## Phase 6 — RTK Query Migration (Day 24–27)
+## Phase 6 — RTK Query Migration (Day 27–30)
 **Goal:** Replace all manual Axios calls with RTK Query endpoints.
 
 ### Steps
@@ -104,7 +124,7 @@
 
 ---
 
-## Phase 7 — Polish & Performance (Day 28–31)
+## Phase 7 — Polish & Performance (Day 31–34) ✅ Done
 **Goal:** Production-quality UX and bundle size.
 
 ### Steps
@@ -120,7 +140,7 @@
 
 ---
 
-## Phase 8 — Testing (Day 32–36)
+## Phase 8 — Testing (Day 35–39)
 **Goal:** All 60 test cases from the spec implemented and passing.
 
 ### Steps
@@ -134,7 +154,7 @@
 
 ---
 
-## Phase 9 — Deployment (Day 37–38)
+## Phase 9 — Deployment (Day 40–41)
 **Goal:** Live on Vercel with CI on every push.
 
 ### Steps
@@ -158,24 +178,25 @@
 | State | Redux Toolkit 2 + RTK Query |
 | Routing | React Router v6 |
 | Forms | React Hook Form + Zod |
-| Styles | Tailwind CSS + shadcn/ui |
+| Styles | Tailwind CSS (custom component library) |
 | Charts | Recharts |
 | Mock API | Mock Service Worker v2 |
 | Tests | Vitest + RTL + Playwright |
 | Deploy | Vercel + GitHub Actions |
 
-## API Groups (32 endpoints across 5 groups)
+## API Groups (32 endpoints across 6 groups)
 
-- `POST /api/v1/auth/*` — login, register, refresh, logout, me
-- `GET/POST/PATCH/DELETE /api/v1/products` — full product CRUD
+- `POST /api/v1/auth/*` — login, register, verify-email, resend-verification, logout, me
+- `GET/POST/PUT/DELETE /api/v1/products` — full product CRUD + reviews
 - `GET/POST/PATCH /api/v1/orders` — orders for vendor + customer
-- `GET/PATCH /api/v1/users` — user profile management
-- `GET /api/v1/analytics/*` — revenue, top products, order stats
+- `GET/PUT /api/v1/users` — profile, wishlist add/remove
+- `GET /api/v1/analytics/*` — vendor-scoped revenue, top products, overview
+- `GET/PATCH /api/v1/admin/*` — platform stats, user management, all vendors, all orders
 
 ## Roles
 
-| Role | Access |
-|---|---|
-| Customer | Storefront, cart, checkout, order history |
-| Vendor | Dashboard, product CRUD, order management, analytics |
-| Admin | All vendor features + user management |
+| Role | Portal | Access |
+|---|---|---|
+| Customer | `/store/*` | Storefront, cart, checkout, wishlist, order history |
+| Vendor | `/vendor/*` | Dashboard, product CRUD, order management, analytics (own store) |
+| Admin | `/admin/*` | Platform overview, user management (ban/suspend), all vendors, all orders |
