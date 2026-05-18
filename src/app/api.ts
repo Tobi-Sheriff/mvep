@@ -25,6 +25,6 @@ const baseQueryWith401: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWith401,
-  tagTypes: ['Product', 'Order', 'Wishlist', 'CustomerOrder'],
+  tagTypes: ['Product', 'Order', 'Wishlist', 'CustomerOrder', 'AdminUser', 'AdminVendor'],
   endpoints: () => ({}),
 });

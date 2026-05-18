@@ -17,7 +17,8 @@ export function PrivateRoute({ children, allowedRoles }: Props) {
   }
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    const fallback = user.role === 'customer' ? '/store' : '/vendor/dashboard';
+    const fallback =
+      user.role === 'customer' ? '/store' : user.role === 'admin' ? '/admin/overview' : '/vendor/dashboard';
     return <Navigate to={fallback} replace />;
   }
 
