@@ -48,7 +48,6 @@ export function AdminVendorsPage() {
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50">
                 <th className="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Store</th>
-                <th className="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Owner</th>
                 <th className="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">Products</th>
                 <th className="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">Orders</th>
                 <th className="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">Revenue</th>
@@ -60,7 +59,7 @@ export function AdminVendorsPage() {
               {isLoading
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i} className="animate-pulse">
-                      {Array.from({ length: 7 }).map((_, j) => (
+                      {Array.from({ length: 6 }).map((_, j) => (
                         <td key={j} className="px-4 py-3">
                           <div className="h-4 rounded bg-slate-200 dark:bg-slate-700" />
                         </td>
@@ -74,10 +73,6 @@ export function AdminVendorsPage() {
                     >
                       <td className="px-4 py-3 font-semibold text-slate-900 dark:text-white">
                         {vendor.storeName}
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="text-slate-700 dark:text-slate-300">{vendor.ownerName}</p>
-                        <p className="text-xs text-slate-400">{vendor.ownerEmail}</p>
                       </td>
                       <td className="px-4 py-3 text-right text-slate-700 dark:text-slate-300">
                         {vendor.productCount}

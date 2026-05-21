@@ -9,6 +9,14 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: process.env.VITE_BACKEND_URL ?? 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
+  },
   build: {
     rollupOptions: {
       output: {
@@ -24,7 +32,16 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    environmentOptions: {
+      jsdom: {
+        url: 'http://localhost:5173',
+      },
+    },
     setupFiles: ['./src/test/setup.ts'],
     css: true,
+    include: ['src/**/*.test.{ts,tsx}'],
+    env: {
+      VITE_API_BASE_URL: 'http://localhost:5173',
+    },
   },
 });

@@ -49,7 +49,9 @@ export const analyticsHandlers = [
     const url = new URL(request.url);
     const period = (url.searchParams.get('period') ?? '30d') as AnalyticsPeriod;
     const days = periodDays[period] ?? 30;
-    return HttpResponse.json(generateRevenueSeries(days));
+    const data = generateRevenueSeries(days);
+    const total = Math.round(data.reduce((sum, d) => sum + d.revenue, 0) * 100) / 100;
+    return HttpResponse.json({ data, total, change: 12.4 });
   }),
 
   http.get('/api/v1/analytics/products/top', () => {

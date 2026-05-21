@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
-import type { Order, OrderStatus, OrdersResponse, OrderItem } from '@/features/orders/types';
+import type { Order, OrderStatus, OrdersResponse } from '@/features/orders/types';
+import { products } from './products';
 
 export let orders: Order[] = [
   { id: 'o1', customerId: 'c1', customerName: 'Alice Johnson', customerEmail: 'alice@example.com', items: [{ productId: 'p1', productName: 'Wireless Headphones', quantity: 1, unitPrice: 249.99 }], status: 'pending', total: 249.99, createdAt: '2024-02-18T09:00:00Z', updatedAt: '2024-02-18T09:00:00Z' },
@@ -28,21 +29,36 @@ function getUserIdFromToken(authHeader: string | null): string | null {
 }
 
 export const orderHandlers = [
+  // Vendor/admin: all orders (no customer scoping)
   http.get('/api/v1/orders', ({ request }) => {
     const url = new URL(request.url);
     const status = url.searchParams.get('status') as OrderStatus | null;
     const page = Number(url.searchParams.get('page') ?? 1);
     const limit = Number(url.searchParams.get('limit') ?? 20);
-    const customerScope = url.searchParams.get('customerId') === 'me';
 
     let filtered = [...orders].sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
-    if (customerScope) {
-      const userId = getUserIdFromToken(request.headers.get('Authorization'));
-      if (userId) filtered = filtered.filter((o) => o.customerId === userId);
-    }
+    if (status) filtered = filtered.filter((o) => o.status === status);
+
+    const total = filtered.length;
+    const start = (page - 1) * limit;
+    return HttpResponse.json<OrdersResponse>({ orders: filtered.slice(start, start + limit), total });
+  }),
+
+  // Customer: own orders only
+  http.get('/api/v1/orders/my', ({ request }) => {
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status') as OrderStatus | null;
+    const page = Number(url.searchParams.get('page') ?? 1);
+    const limit = Number(url.searchParams.get('limit') ?? 20);
+
+    const userId = getUserIdFromToken(request.headers.get('Authorization'));
+
+    let filtered = [...orders]
+      .filter((o) => !userId || o.customerId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     if (status) filtered = filtered.filter((o) => o.status === status);
 
@@ -67,18 +83,34 @@ export const orderHandlers = [
 
   http.post('/api/v1/orders', async ({ request }) => {
     const body = await request.json() as {
-      items: OrderItem[];
-      total: number;
+      items: { productId: string; quantity: number }[];
+      shippingAddress: { line1: string; city: string; state: string; postcode: string; country: string };
+      paymentMethod: string;
     };
     const userId = getUserIdFromToken(request.headers.get('Authorization')) ?? 'guest';
+
+    const orderItems = body.items.map((item) => {
+      const product = products.find((p) => p.id === item.productId);
+      return {
+        productId: item.productId,
+        productName: product?.name ?? item.productId,
+        quantity: item.quantity,
+        unitPrice: product?.price ?? 0,
+      };
+    });
+
+    const total = Math.round(
+      orderItems.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0) * 100,
+    ) / 100;
+
     const newOrder: Order = {
       id: `o${orders.length + 1}`,
       customerId: userId,
       customerName: 'Alice Customer',
       customerEmail: 'customer@mvep.dev',
-      items: body.items,
+      items: orderItems,
       status: 'pending',
-      total: body.total,
+      total,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

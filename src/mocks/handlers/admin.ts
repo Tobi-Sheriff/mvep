@@ -3,24 +3,24 @@ import type { AdminUser, AdminVendor, AdminStats } from '@/features/admin/types'
 import { orders } from './orders';
 
 let adminUsers: AdminUser[] = [
-  { id: '1', name: 'Alice Customer', email: 'customer@mvep.dev', role: 'customer', status: 'active', createdAt: '2024-01-10T10:00:00Z' },
-  { id: '2', name: 'Bob Vendor', email: 'vendor@mvep.dev', role: 'vendor', status: 'active', createdAt: '2024-01-08T10:00:00Z' },
-  { id: '3', name: 'Carol Admin', email: 'admin@mvep.dev', role: 'admin', status: 'active', createdAt: '2024-01-01T10:00:00Z' },
-  { id: 'u4', name: 'David Chen', email: 'david@example.com', role: 'customer', status: 'active', createdAt: '2024-01-15T10:00:00Z' },
-  { id: 'u5', name: 'Emma Davis', email: 'emma@example.com', role: 'customer', status: 'active', createdAt: '2024-01-18T10:00:00Z' },
-  { id: 'u6', name: 'Frank Brown', email: 'frank@example.com', role: 'customer', status: 'suspended', createdAt: '2024-01-20T10:00:00Z' },
-  { id: 'u7', name: 'Grace Lee', email: 'grace@example.com', role: 'customer', status: 'active', createdAt: '2024-02-01T10:00:00Z' },
-  { id: 'u8', name: 'Henry Wilson', email: 'henry@example.com', role: 'vendor', status: 'active', createdAt: '2024-01-12T10:00:00Z' },
-  { id: 'u9', name: 'Iris Taylor', email: 'iris@example.com', role: 'customer', status: 'banned', createdAt: '2024-01-25T10:00:00Z' },
-  { id: 'u10', name: 'James Anderson', email: 'james@example.com', role: 'vendor', status: 'active', createdAt: '2024-01-16T10:00:00Z' },
-  { id: 'u11', name: 'Kate Robinson', email: 'kate@example.com', role: 'customer', status: 'active', createdAt: '2024-02-05T10:00:00Z' },
-  { id: 'u12', name: 'Liam Thompson', email: 'liam@example.com', role: 'customer', status: 'active', createdAt: '2024-02-10T10:00:00Z' },
+  { id: '1',   name: 'Alice Customer',  email: 'customer@mvep.dev',  role: 'customer', status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-01-10T10:00:00Z' },
+  { id: '2',   name: 'Bob Vendor',      email: 'vendor@mvep.dev',    role: 'vendor',   status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-01-08T10:00:00Z' },
+  { id: '3',   name: 'Carol Admin',     email: 'admin@mvep.dev',     role: 'admin',    status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-01-01T10:00:00Z' },
+  { id: 'u4',  name: 'David Chen',      email: 'david@example.com',  role: 'customer', status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-01-15T10:00:00Z' },
+  { id: 'u5',  name: 'Emma Davis',      email: 'emma@example.com',   role: 'customer', status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-01-18T10:00:00Z' },
+  { id: 'u6',  name: 'Frank Brown',     email: 'frank@example.com',  role: 'customer', status: 'suspended', isVerified: true,  avatar: null, createdAt: '2024-01-20T10:00:00Z' },
+  { id: 'u7',  name: 'Grace Lee',       email: 'grace@example.com',  role: 'customer', status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-02-01T10:00:00Z' },
+  { id: 'u8',  name: 'Henry Wilson',    email: 'henry@example.com',  role: 'vendor',   status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-01-12T10:00:00Z' },
+  { id: 'u9',  name: 'Iris Taylor',     email: 'iris@example.com',   role: 'customer', status: 'banned',    isVerified: false, avatar: null, createdAt: '2024-01-25T10:00:00Z' },
+  { id: 'u10', name: 'James Anderson',  email: 'james@example.com',  role: 'vendor',   status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-01-16T10:00:00Z' },
+  { id: 'u11', name: 'Kate Robinson',   email: 'kate@example.com',   role: 'customer', status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-02-05T10:00:00Z' },
+  { id: 'u12', name: 'Liam Thompson',   email: 'liam@example.com',   role: 'customer', status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-02-10T10:00:00Z' },
 ];
 
 const adminVendors: AdminVendor[] = [
-  { id: 'v1', userId: '2', storeName: 'TechStore', ownerName: 'Bob Vendor', ownerEmail: 'vendor@mvep.dev', userStatus: 'active', productCount: 6, totalRevenue: 34518.39, totalOrders: 189, createdAt: '2024-01-08T10:00:00Z' },
-  { id: 'v2', userId: 'u8', storeName: 'SportZone', ownerName: 'Henry Wilson', ownerEmail: 'henry@example.com', userStatus: 'active', productCount: 3, totalRevenue: 18240.50, totalOrders: 145, createdAt: '2024-01-12T10:00:00Z' },
-  { id: 'v3', userId: 'u10', storeName: 'FashionHub', ownerName: 'James Anderson', ownerEmail: 'james@example.com', userStatus: 'active', productCount: 4, totalRevenue: 12890.25, totalOrders: 97, createdAt: '2024-01-16T10:00:00Z' },
+  { id: 'v1', userId: '2', storeName: 'TechStore', userStatus: 'active', productCount: 6, totalRevenue: 34518.39, totalOrders: 189, createdAt: '2024-01-08T10:00:00Z' },
+  { id: 'v2', userId: 'u8', storeName: 'SportZone', userStatus: 'active', productCount: 3, totalRevenue: 18240.50, totalOrders: 145, createdAt: '2024-01-12T10:00:00Z' },
+  { id: 'v3', userId: 'u10', storeName: 'FashionHub', userStatus: 'active', productCount: 4, totalRevenue: 12890.25, totalOrders: 97, createdAt: '2024-01-16T10:00:00Z' },
 ];
 
 export const adminHandlers = [
@@ -92,7 +92,7 @@ export const adminHandlers = [
     let filtered = [...adminVendors];
     if (search) {
       filtered = filtered.filter(
-        (v) => v.storeName.toLowerCase().includes(search) || v.ownerName.toLowerCase().includes(search),
+        (v) => v.storeName.toLowerCase().includes(search),
       );
     }
 
