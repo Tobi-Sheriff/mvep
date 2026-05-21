@@ -27,7 +27,10 @@ export function EmailVerificationPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<VerifyFormData>({ resolver: zodResolver(verifySchema) });
+  } = useForm<VerifyFormData>({
+    resolver: zodResolver(verifySchema),
+    defaultValues: { code: pendingVerification?.devCode ?? '' },
+  });
 
   // Guard: if no pending verification, send back to register
   if (!pendingVerification) {

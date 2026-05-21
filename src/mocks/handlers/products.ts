@@ -110,6 +110,33 @@ export const productHandlers = [
     return HttpResponse.json(reviews);
   }),
 
+  http.post('/api/v1/products/:id/reviews', async ({ params, request }) => {
+    const productId = params.id as string;
+    const product = products.find((p) => p.id === productId);
+    if (!product) return HttpResponse.json({ message: 'Product not found' }, { status: 404 });
+
+    const { rating, comment } = (await request.json()) as { rating: number; comment: string };
+
+    const review: Review = {
+      id: `r${Date.now()}`,
+      userId: 'c1',
+      userName: 'Alice Customer',
+      rating,
+      comment,
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!reviewsDb[productId]) reviewsDb[productId] = [];
+    reviewsDb[productId].push(review);
+
+    // Recalculate average rating and reviewCount atomically
+    const all = reviewsDb[productId];
+    product.reviewCount = all.length;
+    product.rating = Math.round((all.reduce((s, r) => s + r.rating, 0) / all.length) * 100) / 100;
+
+    return HttpResponse.json(review, { status: 201 });
+  }),
+
   http.post('/api/v1/products', async ({ request }) => {
     const body = (await request.json()) as Partial<FullProduct>;
     const fallback = `https://picsum.photos/seed/p${nextId}/800/600`;
