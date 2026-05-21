@@ -8,6 +8,8 @@ export interface AdminUser {
   email: string;
   role: 'customer' | 'vendor' | 'admin';
   status: UserStatus;
+  isVerified: boolean;
+  avatar: string | null;
   createdAt: string;
 }
 
@@ -15,8 +17,6 @@ export interface AdminVendor {
   id: string;
   userId: string;
   storeName: string;
-  ownerName: string;
-  ownerEmail: string;
   userStatus: UserStatus;
   productCount: number;
   totalRevenue: number;

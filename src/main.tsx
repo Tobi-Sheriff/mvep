@@ -9,7 +9,7 @@ import { PageSkeleton } from '@/shared/components/ui/PageSkeleton';
 import './index.css';
 
 async function enableMocking() {
-  if (import.meta.env.DEV) {
+  if (import.meta.env.VITE_USE_MSW === 'true') {
     const { worker } = await import('./mocks/browser');
     return worker.start({ onUnhandledRequest: 'bypass' });
   }

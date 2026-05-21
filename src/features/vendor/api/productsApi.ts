@@ -20,6 +20,28 @@ interface GetStorefrontProductsArgs {
   sort: string;
 }
 
+// Backend always returns `data` + `images[]`; transform to the legacy `products` + `image` shape
+interface BackendProduct {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  category: string;
+  images: string[];
+  rating: number;
+  reviewCount: number;
+  vendorId: string;
+  vendorName: string;
+  createdAt: string;
+}
+interface BackendProductsResponse {
+  data: BackendProduct[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
 const productsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getProducts: builder.query<ProductsResponse, GetVendorProductsArgs>({
@@ -29,6 +51,15 @@ const productsApi = baseApi.injectEndpoints({
         if (category) params.set('category', category);
         return `/products?${params}`;
       },
+      transformResponse: (response: BackendProductsResponse): ProductsResponse => ({
+        products: response.data.map(({ images, rating: _r, reviewCount: _rc, vendorName: _vn, ...rest }) => ({
+          ...rest,
+          image: images?.[0] ?? '',
+        })),
+        total: response.total,
+        page: response.page,
+        limit: 10,
+      }),
       providesTags: ['Product'],
     }),
 
@@ -56,12 +87,20 @@ const productsApi = baseApi.injectEndpoints({
     }),
 
     createProduct: builder.mutation<Product, ProductFormData>({
-      query: (body) => ({ url: '/products', method: 'POST', body }),
+      query: ({ image, ...rest }) => ({
+        url: '/products',
+        method: 'POST',
+        body: { ...rest, images: image ? [image] : [] },
+      }),
       invalidatesTags: ['Product'],
     }),
 
     updateProduct: builder.mutation<Product, { id: string; data: ProductFormData }>({
-      query: ({ id, data }) => ({ url: `/products/${id}`, method: 'PUT', body: data }),
+      query: ({ id, data: { image, ...rest } }) => ({
+        url: `/products/${id}`,
+        method: 'PUT',
+        body: { ...rest, images: image ? [image] : [] },
+      }),
       invalidatesTags: ['Product'],
     }),
 

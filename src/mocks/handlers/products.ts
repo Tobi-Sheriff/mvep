@@ -10,7 +10,7 @@ interface FullProduct extends Product {
   vendorName: string;
 }
 
-let products: FullProduct[] = [
+export let products: FullProduct[] = [
   { id: 'p1', name: 'Wireless Noise-Cancelling Headphones', description: 'Premium over-ear headphones with 30-hour battery and active noise cancellation. Deep bass, clear mids, and crisp highs make every listening session exceptional.', price: 249.99, stock: 45, category: 'Electronics', image: 'https://picsum.photos/seed/p1/800/600', images: ['https://picsum.photos/seed/p1/800/600', 'https://picsum.photos/seed/p1b/800/600'], rating: 4.7, reviewCount: 182, vendorId: 'v1', vendorName: 'TechStore', createdAt: '2024-01-10T10:00:00Z' },
   { id: 'p2', name: 'Mechanical Keyboard', description: 'TKL mechanical keyboard with Cherry MX switches and per-key RGB lighting. N-key rollover for flawless gaming and typing performance.', price: 129.99, stock: 30, category: 'Electronics', image: 'https://picsum.photos/seed/p2/800/600', images: ['https://picsum.photos/seed/p2/800/600', 'https://picsum.photos/seed/p2b/800/600'], rating: 4.5, reviewCount: 94, vendorId: 'v1', vendorName: 'TechStore', createdAt: '2024-01-12T10:00:00Z' },
   { id: 'p3', name: 'Running Shoes Pro', description: 'Lightweight trail running shoes with responsive cushioning and grippy outsole. Breathable mesh upper keeps your feet cool on long runs.', price: 89.99, stock: 60, category: 'Sports', image: 'https://picsum.photos/seed/p3/800/600', images: ['https://picsum.photos/seed/p3/800/600', 'https://picsum.photos/seed/p3b/800/600'], rating: 4.3, reviewCount: 211, vendorId: 'v1', vendorName: 'SportZone', createdAt: '2024-01-15T10:00:00Z' },
@@ -112,6 +112,8 @@ export const productHandlers = [
 
   http.post('/api/v1/products', async ({ request }) => {
     const body = (await request.json()) as Partial<FullProduct>;
+    const fallback = `https://picsum.photos/seed/p${nextId}/800/600`;
+    const images = body.images?.length ? body.images : [fallback];
     const product: FullProduct = {
       id: `p${nextId++}`,
       name: body.name ?? '',
@@ -119,8 +121,8 @@ export const productHandlers = [
       price: body.price ?? 0,
       stock: body.stock ?? 0,
       category: body.category ?? '',
-      image: body.image || `https://picsum.photos/seed/p${nextId}/800/600`,
-      images: body.images ?? [body.image || `https://picsum.photos/seed/p${nextId}/800/600`],
+      image: images[0],
+      images,
       rating: 0,
       reviewCount: 0,
       vendorId: 'v1',
@@ -135,7 +137,8 @@ export const productHandlers = [
     const idx = products.findIndex((p) => p.id === params.id);
     if (idx === -1) return HttpResponse.json({ message: 'Product not found' }, { status: 404 });
     const body = (await request.json()) as Partial<FullProduct>;
-    products[idx] = { ...products[idx], ...body };
+    const images = body.images?.length ? body.images : products[idx].images;
+    products[idx] = { ...products[idx], ...body, images, image: images[0] };
     return HttpResponse.json(products[idx]);
   }),
 
