@@ -81,6 +81,7 @@
 | GET | `/products` | — | — | List products (paginated, filterable) |
 | GET | `/products/:id` | — | — | Get single product |
 | GET | `/products/:id/reviews` | — | — | Get product reviews |
+| POST | `/products/:id/reviews` | ✓ | any | Submit a review (one per user per product) |
 | POST | `/products` | ✓ | vendor/admin | Create product |
 | PUT | `/products/:id` | ✓ | vendor/admin | Update product |
 | DELETE | `/products/:id` | ✓ | vendor/admin | Delete product |
@@ -135,6 +136,26 @@ Query params:
     "createdAt": "ISO 8601"
   }
 ]
+```
+
+### POST `/products/:id/reviews`
+> One review per authenticated user per product. A successful submission recalculates the product's `rating` (average, 2 d.p.) and `reviewCount`.
+```json
+// Request
+{ "rating": 5, "comment": "string" }
+
+// Response 201
+{
+  "id": "string",
+  "userId": "string",
+  "userName": "string",
+  "rating": 5,
+  "comment": "string",
+  "createdAt": "ISO 8601"
+}
+
+// Response 409 — already reviewed
+{ "message": "You have already reviewed this product" }
 ```
 
 ### POST `/products`

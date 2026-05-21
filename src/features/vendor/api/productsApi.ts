@@ -86,6 +86,15 @@ const productsApi = baseApi.injectEndpoints({
       query: (id) => `/products/${id}/reviews`,
     }),
 
+    createReview: builder.mutation<Review, { productId: string; rating: number; comment: string }>({
+      query: ({ productId, rating, comment }) => ({
+        url: `/products/${productId}/reviews`,
+        method: 'POST',
+        body: { rating, comment },
+      }),
+      invalidatesTags: (_result, _error, { productId }) => [{ type: 'Product', id: productId }],
+    }),
+
     createProduct: builder.mutation<Product, ProductFormData>({
       query: ({ image, ...rest }) => ({
         url: '/products',
@@ -116,6 +125,7 @@ export const {
   useGetStorefrontProductsQuery,
   useGetProductQuery,
   useGetProductReviewsQuery,
+  useCreateReviewMutation,
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
