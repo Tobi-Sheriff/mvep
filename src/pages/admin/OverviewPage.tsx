@@ -7,9 +7,6 @@ import type { AdminStats } from '@/features/admin/types';
 const fmt = (n: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
 
-const fmtDate = (s: string) =>
-  new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-amber-100 text-amber-700',
   processing: 'bg-blue-100 text-blue-700',

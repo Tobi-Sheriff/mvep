@@ -16,7 +16,7 @@ import {
 import type { User } from '../types';
 import type { LoginFormData, RegisterFormData } from '../types/schemas';
 
-type RtkError = { data?: { message?: string } };
+type RtkError = { data?: { message?: string; retryAfterSeconds?: number } };
 
 export function useAuthActions() {
   const dispatch = useAppDispatch();
@@ -65,9 +65,13 @@ export function useAuthActions() {
     }
   }
 
-  async function resendCode(email: string): Promise<string> {
-    const data = await resendVerificationMutation({ email }).unwrap();
-    return data.devCode;
+  async function resendCode(email: string): Promise<void> {
+    try {
+      await resendVerificationMutation({ email }).unwrap();
+    } catch (err) {
+      const { message, retryAfterSeconds } = (err as RtkError)?.data ?? {};
+      throw Object.assign(new Error(message ?? 'Failed to resend code'), { retryAfterSeconds });
+    }
   }
 
   function signOut() {

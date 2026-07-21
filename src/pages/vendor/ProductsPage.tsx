@@ -16,6 +16,7 @@ export function VendorProductsPage() {
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(search, 300);
   const { products, total, isLoading, error, createProduct, updateProduct, deleteProduct } =
@@ -23,24 +24,38 @@ export function VendorProductsPage() {
 
   const totalPages = Math.ceil(total / 10);
 
+  function extractErrorMessage(err: unknown, fallback: string): string {
+    const data = (err as { data?: { message?: string } })?.data;
+    return data?.message ?? fallback;
+  }
+
   function openCreate() {
     setEditingProduct(null);
+    setMutationError(null);
     setFormOpen(true);
   }
 
   function openEdit(product: Product) {
     setEditingProduct(product);
+    setMutationError(null);
     setFormOpen(true);
   }
 
   async function handleFormSubmit(data: ProductFormData) {
     setIsMutating(true);
+    setMutationError(null);
     try {
       if (editingProduct) {
         await updateProduct(editingProduct.id, data);
       } else {
         await createProduct(data);
       }
+    } catch (err) {
+      // Rethrow so ProductFormModal doesn't close on failure — a 403 here
+      // means the backend rejected an edit/delete on a product this vendor
+      // doesn't own (ownership is enforced server-side, not client-side).
+      setMutationError(extractErrorMessage(err, 'Failed to save product. Please try again.'));
+      throw err;
     } finally {
       setIsMutating(false);
     }
@@ -49,9 +64,12 @@ export function VendorProductsPage() {
   async function handleDelete() {
     if (!deletingProduct) return;
     setIsMutating(true);
+    setMutationError(null);
     try {
       await deleteProduct(deletingProduct.id);
       setDeletingProduct(null);
+    } catch (err) {
+      setMutationError(extractErrorMessage(err, 'Failed to delete product. Please try again.'));
     } finally {
       setIsMutating(false);
     }
@@ -140,15 +158,17 @@ export function VendorProductsPage() {
         open={formOpen}
         product={editingProduct}
         isLoading={isMutating}
+        error={mutationError}
         onSubmit={handleFormSubmit}
-        onClose={() => setFormOpen(false)}
+        onClose={() => { setFormOpen(false); setMutationError(null); }}
       />
 
       <DeleteConfirmModal
         product={deletingProduct}
         isLoading={isMutating}
+        error={mutationError}
         onConfirm={handleDelete}
-        onClose={() => setDeletingProduct(null)}
+        onClose={() => { setDeletingProduct(null); setMutationError(null); }}
       />
     </div>
   );

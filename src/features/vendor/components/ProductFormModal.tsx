@@ -10,11 +10,12 @@ interface ProductFormModalProps {
   open: boolean;
   product?: Product | null;
   isLoading?: boolean;
+  error?: string | null;
   onSubmit: (data: ProductFormData) => Promise<void>;
   onClose: () => void;
 }
 
-export function ProductFormModal({ open, product, isLoading, onSubmit, onClose }: ProductFormModalProps) {
+export function ProductFormModal({ open, product, isLoading, error, onSubmit, onClose }: ProductFormModalProps) {
   const {
     register,
     handleSubmit,
@@ -33,8 +34,12 @@ export function ProductFormModal({ open, product, isLoading, onSubmit, onClose }
   }, [open, product, reset]);
 
   async function handleFormSubmit(data: ProductFormData) {
-    await onSubmit(data);
-    onClose();
+    try {
+      await onSubmit(data);
+      onClose();
+    } catch {
+      // error already surfaced via the `error` prop; keep the modal open so the user can retry
+    }
   }
 
   const fieldClass =
@@ -50,6 +55,10 @@ export function ProductFormModal({ open, product, isLoading, onSubmit, onClose }
       className="max-w-xl"
     >
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+        {error && (
+          <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>
+        )}
+
         <div>
           <label className={labelClass}>Name</label>
           <input {...register('name')} type="text" placeholder="Product name" className={fieldClass} />

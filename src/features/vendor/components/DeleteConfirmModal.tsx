@@ -4,13 +4,18 @@ import type { Product } from '@/features/vendor/types';
 interface DeleteConfirmModalProps {
   product: Product | null;
   isLoading?: boolean;
+  error?: string | null;
   onConfirm: () => void;
   onClose: () => void;
 }
 
-export function DeleteConfirmModal({ product, isLoading, onConfirm, onClose }: DeleteConfirmModalProps) {
+export function DeleteConfirmModal({ product, isLoading, error, onConfirm, onClose }: DeleteConfirmModalProps) {
   return (
     <Modal open={!!product} onClose={onClose} title="Delete Product">
+      {error && (
+        <div className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>
+      )}
+
       <p className="mb-6 text-sm text-slate-600">
         Are you sure you want to delete{' '}
         <span className="font-semibold text-slate-800">{product?.name}</span>? This action cannot

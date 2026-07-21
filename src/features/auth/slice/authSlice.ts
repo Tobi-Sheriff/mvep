@@ -66,6 +66,15 @@ const authSlice = createSlice({
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
     },
+    sessionEnded(state, action: PayloadAction<string>) {
+      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
+      state.error = action.payload;
+      state.pendingVerification = null;
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+    },
     clearError(state) {
       state.error = null;
     },
@@ -79,6 +88,7 @@ export const {
   verificationPending,
   clearVerification,
   logout,
+  sessionEnded,
   clearError,
 } = authSlice.actions;
 export default authSlice.reducer;

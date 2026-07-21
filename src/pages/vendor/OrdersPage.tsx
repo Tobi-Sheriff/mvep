@@ -4,8 +4,7 @@ import { useOrders } from '@/features/vendor/hooks/useOrders';
 import { type OrderStatus } from '@/features/orders/types';
 import { cn } from '@/shared/utils/cn';
 
-const ALL_TAB = 'all' as const;
-type Tab = typeof ALL_TAB | OrderStatus;
+type Tab = 'all' | OrderStatus;
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'all', label: 'All' },

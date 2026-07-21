@@ -15,7 +15,9 @@ export function useDarkMode() {
     document.documentElement.classList.toggle('dark', isDark);
     try {
       localStorage.setItem(STORAGE_KEY, String(isDark));
-    } catch {}
+    } catch {
+      // localStorage unavailable (private browsing, disabled, etc.) — dark mode just won't persist
+    }
   }, [isDark]);
 
   return { isDark, toggle: () => setIsDark((prev) => !prev) };

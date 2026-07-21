@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,8 +20,15 @@ export function EmailVerificationPage() {
   const navigate = useNavigate();
   const { pendingVerification, isLoading, error } = useAuth();
   const { verifyEmail, resendCode } = useAuthActions();
-  const [devCode, setDevCode] = useState(pendingVerification?.devCode ?? '');
   const [resent, setResent] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
+  const [retryAfter, setRetryAfter] = useState(0);
+
+  useEffect(() => {
+    if (retryAfter <= 0) return;
+    const timer = setInterval(() => setRetryAfter((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [retryAfter]);
 
   const {
     register,
@@ -29,7 +36,9 @@ export function EmailVerificationPage() {
     formState: { errors },
   } = useForm<VerifyFormData>({
     resolver: zodResolver(verifySchema),
-    defaultValues: { code: pendingVerification?.devCode ?? '' },
+    // devCode is only ever populated by the backend outside production, but gate
+    // it client-side too so a prod build never auto-fills/shows a real code.
+    defaultValues: { code: import.meta.env.DEV ? (pendingVerification?.devCode ?? '') : '' },
   });
 
   // Guard: if no pending verification, send back to register
@@ -49,13 +58,20 @@ export function EmailVerificationPage() {
   }
 
   async function handleResend() {
+    if (retryAfter > 0) return;
+    setResendError(null);
     try {
-      const newCode = await resendCode(email);
-      setDevCode(newCode);
+      await resendCode(email);
       setResent(true);
       setTimeout(() => setResent(false), 3000);
-    } catch {
-      // silently fail
+    } catch (err) {
+      const retryAfterSeconds = (err as { retryAfterSeconds?: number })?.retryAfterSeconds;
+      if (retryAfterSeconds) {
+        setRetryAfter(retryAfterSeconds);
+        setResendError(`Too many attempts. Try again in ${retryAfterSeconds}s.`);
+      } else {
+        setResendError(err instanceof Error ? err.message : 'Failed to resend code');
+      }
     }
   }
 
@@ -73,16 +89,18 @@ export function EmailVerificationPage() {
           </p>
         </div>
 
-        {/* Dev mode banner — visible only because this is MSW-mocked */}
-        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
-          <p className="mb-0.5 text-xs font-semibold uppercase tracking-wide text-amber-700">
-            Dev Mode
-          </p>
-          <p className="text-sm text-amber-800">
-            Your code:{' '}
-            <span className="font-mono font-bold tracking-widest">{devCode}</span>
-          </p>
-        </div>
+        {/* Dev mode banner — gated client-side too, never shows in a production build */}
+        {import.meta.env.DEV && pendingVerification.devCode && (
+          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+            <p className="mb-0.5 text-xs font-semibold uppercase tracking-wide text-amber-700">
+              Dev Mode
+            </p>
+            <p className="text-sm text-amber-800">
+              Your code:{' '}
+              <span className="font-mono font-bold tracking-widest">{pendingVerification.devCode}</span>
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
@@ -115,14 +133,19 @@ export function EmailVerificationPage() {
           </button>
         </form>
 
+        {resendError && (
+          <div className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600">{resendError}</div>
+        )}
+
         <p className="mt-4 text-center text-sm text-slate-500">
           Didn't receive it?{' '}
           <button
             type="button"
             onClick={handleResend}
-            className="font-medium text-blue-600 hover:underline"
+            disabled={retryAfter > 0}
+            className="font-medium text-blue-600 hover:underline disabled:cursor-not-allowed disabled:text-slate-400 disabled:no-underline"
           >
-            {resent ? '✓ Sent!' : 'Resend code'}
+            {resent ? '✓ Sent!' : retryAfter > 0 ? `Try again in ${retryAfter}s` : 'Resend code'}
           </button>
         </p>
       </div>
