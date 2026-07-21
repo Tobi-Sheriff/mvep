@@ -49,7 +49,9 @@ const productsApi = baseApi.injectEndpoints({
         const params = new URLSearchParams({ page: String(page), limit: String(limit) });
         if (search) params.set('search', search);
         if (category) params.set('category', category);
-        return `/products?${params}`;
+        // Vendor-only, scoped server-side to the caller's own vendorId — distinct
+        // from the public, unscoped GET /products used by the storefront catalog.
+        return `/products/my?${params}`;
       },
       transformResponse: (response: BackendProductsResponse): ProductsResponse => ({
         products: response.data.map(({ images, rating: _r, reviewCount: _rc, vendorName: _vn, ...rest }) => ({

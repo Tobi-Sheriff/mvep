@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useGetAdminOrdersQuery } from '@/features/admin/api/adminApi';
-import type { OrderStatus } from '@/features/orders/types';
 import { ORDER_STATUSES } from '@/features/orders/types';
 import { cn } from '@/shared/utils/cn';
 

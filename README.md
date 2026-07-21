@@ -143,7 +143,7 @@ npm install
 npm run dev
 ```
 
-The app runs at `http://localhost:5173`. MSW intercepts all `/api/v1` calls automatically — no backend or environment variables needed.
+The app runs at `http://localhost:5310`. MSW intercepts all `/api/v1` calls automatically — no backend or environment variables needed.
 
 ### Test accounts (MSW fixture data)
 

@@ -2,7 +2,7 @@ import { http, HttpResponse, delay } from 'msw';
 import type { AdminUser, AdminVendor, AdminStats } from '@/features/admin/types';
 import { orders } from './orders';
 
-let adminUsers: AdminUser[] = [
+const adminUsers: AdminUser[] = [
   { id: '1',   name: 'Alice Customer',  email: 'customer@mvep.dev',  role: 'customer', status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-01-10T10:00:00Z' },
   { id: '2',   name: 'Bob Vendor',      email: 'vendor@mvep.dev',    role: 'vendor',   status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-01-08T10:00:00Z' },
   { id: '3',   name: 'Carol Admin',     email: 'admin@mvep.dev',     role: 'admin',    status: 'active',    isVerified: true,  avatar: null, createdAt: '2024-01-01T10:00:00Z' },

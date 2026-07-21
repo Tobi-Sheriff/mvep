@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '@/features/auth/slice/authSlice';
 import cartReducer from '@/features/cart/slice/cartSlice';
+import connectivityReducer from '@/app/connectivitySlice';
 import { baseApi } from '@/app/api';
 import type { RootState } from '@/app/store';
 
@@ -13,6 +14,7 @@ export function makeStore(preloadedState?: Partial<RootState>) {
     reducer: {
       auth: authReducer,
       cart: cartReducer,
+      connectivity: connectivityReducer,
       [baseApi.reducerPath]: baseApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>

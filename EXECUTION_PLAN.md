@@ -140,7 +140,7 @@
 
 ---
 
-## Phase 8 — Testing (Day 35–39)
+## Phase 8 — Testing (Day 35–39) ✅ Done
 **Goal:** All 60 test cases from the spec implemented and passing.
 
 ### Steps

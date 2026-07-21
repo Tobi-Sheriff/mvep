@@ -4,6 +4,7 @@ import { PrivateRoute } from '@/features/auth/components/PrivateRoute';
 import { DashboardLayout } from '@/shared/components/layout/DashboardLayout';
 import { StorefrontLayout } from '@/shared/components/layout/StorefrontLayout';
 import { AdminLayout } from '@/shared/components/layout/AdminLayout';
+import { RouteErrorFallback } from '@/shared/components/ui/RouteErrorFallback';
 
 // Auth pages
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })));
@@ -56,12 +57,12 @@ const WishlistPage = lazy(() => import('@/pages/customer/WishlistPage').then((m)
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 
 export const router = createBrowserRouter([
-  { path: '/', element: <Navigate to="/store" replace /> },
+  { path: '/', element: <Navigate to="/store" replace />, errorElement: <RouteErrorFallback /> },
 
   // Auth — public
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
-  { path: '/verify-email', element: <EmailVerificationPage /> },
+  { path: '/login', element: <LoginPage />, errorElement: <RouteErrorFallback /> },
+  { path: '/register', element: <RegisterPage />, errorElement: <RouteErrorFallback /> },
+  { path: '/verify-email', element: <EmailVerificationPage />, errorElement: <RouteErrorFallback /> },
 
   // Vendor portal — vendor only (admin has their own portal)
   {
@@ -71,6 +72,7 @@ export const router = createBrowserRouter([
         <DashboardLayout />
       </PrivateRoute>
     ),
+    errorElement: <RouteErrorFallback />,
     children: [
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: 'dashboard', element: <VendorDashboardPage /> },
@@ -88,6 +90,7 @@ export const router = createBrowserRouter([
         <AdminLayout />
       </PrivateRoute>
     ),
+    errorElement: <RouteErrorFallback />,
     children: [
       { index: true, element: <Navigate to="overview" replace /> },
       { path: 'overview', element: <AdminOverviewPage /> },
@@ -101,6 +104,7 @@ export const router = createBrowserRouter([
   {
     path: '/store',
     element: <StorefrontLayout />,
+    errorElement: <RouteErrorFallback />,
     children: [
       { index: true, element: <StorefrontPage /> },
       { path: 'product/:id', element: <ProductDetailPage /> },
@@ -125,5 +129,5 @@ export const router = createBrowserRouter([
     ],
   },
 
-  { path: '*', element: <NotFoundPage /> },
+  { path: '*', element: <NotFoundPage />, errorElement: <RouteErrorFallback /> },
 ]);

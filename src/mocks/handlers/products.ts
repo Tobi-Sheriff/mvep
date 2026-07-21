@@ -10,7 +10,7 @@ interface FullProduct extends Product {
   vendorName: string;
 }
 
-export let products: FullProduct[] = [
+export const products: FullProduct[] = [
   { id: 'p1', name: 'Wireless Noise-Cancelling Headphones', description: 'Premium over-ear headphones with 30-hour battery and active noise cancellation. Deep bass, clear mids, and crisp highs make every listening session exceptional.', price: 249.99, stock: 45, category: 'Electronics', image: 'https://picsum.photos/seed/p1/800/600', images: ['https://picsum.photos/seed/p1/800/600', 'https://picsum.photos/seed/p1b/800/600'], rating: 4.7, reviewCount: 182, vendorId: 'v1', vendorName: 'TechStore', createdAt: '2024-01-10T10:00:00Z' },
   { id: 'p2', name: 'Mechanical Keyboard', description: 'TKL mechanical keyboard with Cherry MX switches and per-key RGB lighting. N-key rollover for flawless gaming and typing performance.', price: 129.99, stock: 30, category: 'Electronics', image: 'https://picsum.photos/seed/p2/800/600', images: ['https://picsum.photos/seed/p2/800/600', 'https://picsum.photos/seed/p2b/800/600'], rating: 4.5, reviewCount: 94, vendorId: 'v1', vendorName: 'TechStore', createdAt: '2024-01-12T10:00:00Z' },
   { id: 'p3', name: 'Running Shoes Pro', description: 'Lightweight trail running shoes with responsive cushioning and grippy outsole. Breathable mesh upper keeps your feet cool on long runs.', price: 89.99, stock: 60, category: 'Sports', image: 'https://picsum.photos/seed/p3/800/600', images: ['https://picsum.photos/seed/p3/800/600', 'https://picsum.photos/seed/p3b/800/600'], rating: 4.3, reviewCount: 211, vendorId: 'v1', vendorName: 'SportZone', createdAt: '2024-01-15T10:00:00Z' },
@@ -55,48 +55,71 @@ function toCustomerProduct(p: FullProduct): CustomerProduct {
   };
 }
 
+// mock-jwt-{userId}-{timestamp} — mirrors the parser in mocks/handlers/orders.ts
+function getUserIdFromToken(authHeader: string | null): string | null {
+  if (!authHeader?.startsWith('Bearer mock-jwt-')) return null;
+  const parts = authHeader.replace('Bearer ', '').split('-');
+  return parts[2] ?? null;
+}
+
+// userId -> vendor profile id, mirrors the adminVendors fixture in mocks/handlers/admin.ts
+const VENDOR_PROFILE_BY_USER_ID: Record<string, string> = { '2': 'v1', u8: 'v2', u10: 'v3' };
+
+function queryProducts(list: FullProduct[], url: URL): StorefrontResponse {
+  const page = Number(url.searchParams.get('page') ?? 1);
+  const limit = Number(url.searchParams.get('limit') ?? 12);
+  const search = url.searchParams.get('search')?.toLowerCase() ?? '';
+  const category = url.searchParams.get('category') ?? '';
+  const minPrice = Number(url.searchParams.get('minPrice') ?? 0);
+  const maxPrice = Number(url.searchParams.get('maxPrice') ?? Infinity);
+  const minRating = Number(url.searchParams.get('rating') ?? 0);
+  const sort = url.searchParams.get('sort') ?? 'newest';
+
+  let filtered = [...list];
+
+  if (search) {
+    filtered = filtered.filter(
+      (p) => p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search),
+    );
+  }
+  if (category) filtered = filtered.filter((p) => p.category === category);
+  if (minPrice > 0) filtered = filtered.filter((p) => p.price >= minPrice);
+  if (maxPrice < Infinity) filtered = filtered.filter((p) => p.price <= maxPrice);
+  if (minRating > 0) filtered = filtered.filter((p) => p.rating >= minRating);
+
+  switch (sort) {
+    case 'price_asc': filtered.sort((a, b) => a.price - b.price); break;
+    case 'price_desc': filtered.sort((a, b) => b.price - a.price); break;
+    case 'popular': filtered.sort((a, b) => b.reviewCount - a.reviewCount); break;
+    default: filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const start = (page - 1) * limit;
+
+  return {
+    data: filtered.slice(start, start + limit).map(toCustomerProduct),
+    total,
+    page,
+    totalPages,
+  };
+}
+
 export const productHandlers = [
-  // Customer-facing catalogue — returns full CustomerProduct shape
+  // Customer-facing catalogue — public, unscoped, every vendor's products
   http.get('/api/v1/products', ({ request }) => {
-    const url = new URL(request.url);
-    const page = Number(url.searchParams.get('page') ?? 1);
-    const limit = Number(url.searchParams.get('limit') ?? 12);
-    const search = url.searchParams.get('search')?.toLowerCase() ?? '';
-    const category = url.searchParams.get('category') ?? '';
-    const minPrice = Number(url.searchParams.get('minPrice') ?? 0);
-    const maxPrice = Number(url.searchParams.get('maxPrice') ?? Infinity);
-    const minRating = Number(url.searchParams.get('rating') ?? 0);
-    const sort = url.searchParams.get('sort') ?? 'newest';
+    return HttpResponse.json(queryProducts(products, new URL(request.url)));
+  }),
 
-    let filtered = [...products];
+  // Vendor-only — scoped to the caller's own vendorId (mirrors GET /orders/my)
+  http.get('/api/v1/products/my', ({ request }) => {
+    const userId = getUserIdFromToken(request.headers.get('Authorization'));
+    const vendorId = userId ? VENDOR_PROFILE_BY_USER_ID[userId] : undefined;
+    if (!vendorId) return HttpResponse.json({ message: 'Forbidden' }, { status: 403 });
 
-    if (search) {
-      filtered = filtered.filter(
-        (p) => p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search),
-      );
-    }
-    if (category) filtered = filtered.filter((p) => p.category === category);
-    if (minPrice > 0) filtered = filtered.filter((p) => p.price >= minPrice);
-    if (maxPrice < Infinity) filtered = filtered.filter((p) => p.price <= maxPrice);
-    if (minRating > 0) filtered = filtered.filter((p) => p.rating >= minRating);
-
-    switch (sort) {
-      case 'price_asc': filtered.sort((a, b) => a.price - b.price); break;
-      case 'price_desc': filtered.sort((a, b) => b.price - a.price); break;
-      case 'popular': filtered.sort((a, b) => b.reviewCount - a.reviewCount); break;
-      default: filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
-
-    const total = filtered.length;
-    const totalPages = Math.max(1, Math.ceil(total / limit));
-    const start = (page - 1) * limit;
-
-    return HttpResponse.json<StorefrontResponse>({
-      data: filtered.slice(start, start + limit).map(toCustomerProduct),
-      total,
-      page,
-      totalPages,
-    });
+    const own = products.filter((p) => p.vendorId === vendorId);
+    return HttpResponse.json(queryProducts(own, new URL(request.url)));
   }),
 
   http.get('/api/v1/products/:id', ({ params }) => {

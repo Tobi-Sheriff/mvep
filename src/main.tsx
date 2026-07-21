@@ -6,6 +6,7 @@ import { store } from './app/store';
 import { router } from './app/router';
 import { ErrorBoundary } from '@/shared/components/ui/ErrorBoundary';
 import { PageSkeleton } from '@/shared/components/ui/PageSkeleton';
+import { OfflineBanner } from '@/shared/components/ui/OfflineBanner';
 import './index.css';
 
 async function enableMocking() {
@@ -20,6 +21,7 @@ enableMocking().then(() => {
     <StrictMode>
       <ErrorBoundary>
         <Provider store={store}>
+          <OfflineBanner />
           <Suspense fallback={<PageSkeleton />}>
             <RouterProvider router={router} />
           </Suspense>
