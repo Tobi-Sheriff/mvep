@@ -1,5 +1,6 @@
 import { baseApi } from '@/app/api';
 import type { Order, OrdersResponse, OrderItem } from '@/features/orders/types';
+import type { CheckoutAddress } from '@/features/checkout/types';
 
 // Legacy input shape from useCheckout — items still carry full detail from the cart.
 // The query function strips productName/unitPrice and adds the required new fields
@@ -7,6 +8,7 @@ import type { Order, OrdersResponse, OrderItem } from '@/features/orders/types';
 interface PlaceOrderRequest {
   items: OrderItem[];
   total: number;
+  address: CheckoutAddress;
 }
 
 const customerOrdersApi = baseApi.injectEndpoints({
@@ -17,12 +19,18 @@ const customerOrdersApi = baseApi.injectEndpoints({
     }),
 
     placeOrder: builder.mutation<Order, PlaceOrderRequest>({
-      query: ({ items }) => ({
+      query: ({ items, address }) => ({
         url: '/orders',
         method: 'POST',
         body: {
           items: items.map(({ productId, quantity }) => ({ productId, quantity })),
-          shippingAddress: { line1: '', city: '', state: '', postcode: '', country: '' },
+          shippingAddress: {
+            line1: address.address,
+            city: address.city,
+            state: address.state,
+            postcode: address.zipCode,
+            country: address.country,
+          },
           paymentMethod: 'card',
         },
       }),

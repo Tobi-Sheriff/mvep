@@ -101,7 +101,7 @@ export function ProductFormModal({ open, product, isLoading, error, onSubmit, on
         </div>
 
         <div>
-          <label className={labelClass}>Image URL (optional)</label>
+          <label className={labelClass}>Image URL</label>
           <input {...register('image')} type="url" placeholder="https://…" className={fieldClass} />
           {errors.image && <p className={errorClass}>{errors.image.message}</p>}
         </div>

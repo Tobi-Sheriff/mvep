@@ -31,6 +31,7 @@ export function useCheckout() {
           unitPrice: i.price,
         })),
         total,
+        address,
       }).unwrap();
       setOrderId(result.id);
       dispatch(clearCart());
